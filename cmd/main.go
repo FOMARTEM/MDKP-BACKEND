@@ -10,6 +10,7 @@ import (
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/usecase"
 )
 
+// main - точка входа в приложение
 func main() {
 	// Считываем аргументы командной строки
 	configPath := flag.String("config-path", "../config/config.yaml", "путь к файлу конфигурации")
@@ -22,7 +23,7 @@ func main() {
 
 	prv := provider.NewProvider(cfg.DB.Host, cfg.DB.Port, cfg.DB.User, cfg.DB.Password, cfg.DB.DBname)
 	use := usecase.NewUsecase(prv)
-	srv := api.NewServer(cfg.IP, cfg.Port, use, cfg.API.SecretKey)
+	srv := api.NewServer(cfg.IP, cfg.Port, use, cfg.API.SecretKey, cfg.API.FrontAddress, cfg.API.CommentStaticPath)
 
 	srv.Run()
 }
