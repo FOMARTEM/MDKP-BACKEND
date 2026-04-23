@@ -13,7 +13,7 @@ import (
 // main - точка входа в приложение
 func main() {
 	// Считываем аргументы командной строки
-	configPath := flag.String("config-path", "../config/config.yaml", "путь к файлу конфигурации")
+	configPath := flag.String("config-path", "./config/config.yaml", "путь к файлу конфигурации")
 	flag.Parse()
 
 	cfg, err := config.LoadConfig(*configPath)
