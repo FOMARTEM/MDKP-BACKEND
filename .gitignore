@@ -34,3 +34,6 @@ go.work.sum
 
 # Configuration files
 config/config.yaml
+
+# Logs files    
+logs/
