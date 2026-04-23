@@ -16,10 +16,10 @@ type Server struct {
 
 	secretKey string
 
-	uc usecase
+	uc Usecase
 }
 
-func NewServer(ip string, port int, uc usecase, secretKey string, frontAddress string, materialPath string) *Server {
+func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress string, materialPath string) *Server {
 	api := Server{
 		uc:                 uc,
 		secretKey:          secretKey,
