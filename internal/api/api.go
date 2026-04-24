@@ -23,6 +23,14 @@ type Server struct {
 	uc Usecase
 }
 
+type jwtCustomClaims struct {
+	UserID int    `json:"user_id"`
+	Role   string `json:"role"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+	jwt.RegisteredClaims
+}
+
 func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress string, materialPath string) *Server {
 	api := Server{
 		uc:                 uc,
