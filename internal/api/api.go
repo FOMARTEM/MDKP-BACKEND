@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	jwt "github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -66,6 +68,46 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 		AllowOrigins: []string{frontAddress},
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+	}))
+
+	// JWT middleware для защиты маршрутов, требующих аутентификации
+	api.server.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(secretKey),
+		TokenLookup: "header:Authorization:Bearer ",
+		ErrorHandler: func(c echo.Context, err error) error {
+			return c.JSON(401, map[string]string{"error": "Unauthorized"})
+		},
+		// Исключаем из JWT middleware маршруты, которые не требуют аутентификации
+		Skipper: func(c echo.Context) bool {
+			// Разрешаем доступ к маршруту /health без JWT
+			if c.Path() == "/health" {
+				return true
+			}
+			// Разрешаем доступ к маршрутам аутентификации без JWT
+			if c.Path() == "/auth" || c.Path() == "/auth/refresh" || c.Path() == "/auth/logout" {
+				return true
+			}
+			return false
+		},
+		// В ContextKey middleware кладёт токен целиком. Дальше в SuccessHandler раскладываем нужные поля в контекст.
+		ContextKey: "user",
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(jwtCustomClaims)
+		},
+		SuccessHandler: func(c echo.Context) {
+			token, ok := c.Get("user").(*jwt.Token)
+			if !ok || token == nil {
+				return
+			}
+			claims, ok := token.Claims.(*jwtCustomClaims)
+			if !ok || claims == nil {
+				return
+			}
+			c.Set("userID", claims.UserID)
+			c.Set("role", claims.Role)
+			c.Set("email", claims.Email)
+			c.Set("name", claims.Name)
+		},
 	}))
 
 	api.address = ip + ":" + strconv.Itoa(port)
