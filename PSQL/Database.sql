@@ -95,20 +95,6 @@ CREATE TABLE IF NOT EXISTS public.audit_log
     CONSTRAINT audit_log_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS public.auth_session
-(
-    id bigserial NOT NULL,
-    employee_id bigint NOT NULL,
-    refresh_token_hash character varying(128) COLLATE pg_catalog."default" NOT NULL,
-    user_agent character varying(512) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    ip character varying(64) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    expires_at timestamp with time zone NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    last_used_at timestamp with time zone NOT NULL DEFAULT now(),
-    revoked_at timestamp with time zone,
-    CONSTRAINT auth_session_pkey PRIMARY KEY (id)
-);
-
 ALTER TABLE IF EXISTS public."Employee"
     ADD CONSTRAINT "Position" FOREIGN KEY ("Position_ID")
     REFERENCES public."Position" (id) MATCH SIMPLE
@@ -227,13 +213,6 @@ ALTER TABLE IF EXISTS public."Version"
 
 ALTER TABLE IF EXISTS public.audit_log
     ADD CONSTRAINT audit_log_employee_id_fkey FOREIGN KEY (employee_id)
-    REFERENCES public."Employee" (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-
-ALTER TABLE IF EXISTS public.auth_session
-    ADD CONSTRAINT auth_session_employee_id_fkey FOREIGN KEY (employee_id)
     REFERENCES public."Employee" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
