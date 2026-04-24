@@ -81,61 +81,61 @@ func (s *Server) Run() {
 
 func (s *Server) registerRoutes() {
 	// Здесь регистрируем все маршруты и их обработчики
-	s.server.GET("/health", s.healthCheckHandler)
+	s.server.GET("/health", s.healthCheck)
 
 	// Группировка маршрутов для удобства и логической организации
 	// Маршруты для аутентификации
 	auth := s.server.Group("/auth")
-	auth.POST("", s.authLoginHandler)
-	auth.POST("/refresh", s.authRefreshHandler)
-	auth.POST("/logout", s.authLogoutHandler)
+	auth.POST("", s.authLogin)
+	auth.POST("/refresh", s.authRefresh)
+	auth.POST("/logout", s.authLogout)
 
 	// Маршруты для управления аккаунтом
 	account := s.server.Group("/account")
-	account.PUT("", s.accountUpdateHandler)
-	account.GET("", s.accountGetHandler)
+	account.PUT("", s.accountUpdate)
+	account.GET("", s.accountGet)
 
 	// Маршрут для получения логов активности
-	s.server.GET("/activitylog", s.activityLogListHandler)
+	s.server.GET("/activitylog", s.activityLogList)
 
 	// Маршруты для управления пользователями
-	s.server.POST("/user", s.userCreateHandler)
-	s.server.DELETE("/user/:id", s.userDeleteHandler)
-	s.server.PUT("/user/role", s.userRoleUpdateHandler)
+	s.server.POST("/user", s.userCreate)
+	s.server.DELETE("/user/:id", s.userDelete)
+	s.server.PUT("/user/role", s.userRoleUpdate)
 
 	// Маршруты для получения ролей, статистики и поиска пользователей
-	s.server.GET("/roles", s.rolesListHandler)
-	s.server.GET("/stats", s.statsGetHandler)
-	s.server.GET("/finduser", s.findUserHandler)
+	s.server.GET("/roles", s.rolesList)
+	s.server.GET("/stats", s.statsGet)
+	s.server.GET("/finduser", s.findUser)
 
 	// Маршруты для управления задачами
 	task := s.server.Group("/task")
-	task.POST("", s.taskCreateHandler)
-	task.DELETE("/:id", s.taskDeleteHandler)
-	task.PUT("/:id/assign", s.taskAssignHandler)
-	task.GET("/:id", s.taskGetHandler)
-	task.PUT("/:id/status", s.taskStatusUpdateHandler)
+	task.POST("", s.taskCreate)
+	task.DELETE("/:id", s.taskDelete)
+	task.PUT("/:id/assign", s.taskAssign)
+	task.GET("/:id", s.taskGet)
+	task.PUT("/:id/status", s.taskStatusUpdate)
 
 	// Маршруты для получения и поиска задач
-	s.server.GET("/tasks", s.tasksListHandler)
-	s.server.GET("/tasks/search", s.tasksSearchHandler)
+	s.server.GET("/tasks", s.tasksList)
+	s.server.GET("/tasks/search", s.tasksSearch)
 
 	// Маршруты для управления правками
 	edit := s.server.Group("/edit")
-	edit.POST("/:id", s.editCreateHandler)
-	edit.PUT("/:id/status", s.editStatusUpdateHandler)
-	edit.DELETE("/:id", s.editDeleteHandler)
+	edit.POST("/:id", s.editCreate)
+	edit.PUT("/:id/status", s.editStatusUpdate)
+	edit.DELETE("/:id", s.editDelete)
 
 	// Маршрут для получения правок по ID
-	s.server.GET("/edits/:id", s.editsListHandler)
+	s.server.GET("/edits/:id", s.editsList)
 
 	// Маршруты для управления материалами
 	material := s.server.Group("/material")
-	material.GET("/:id", s.materialGetHandler)
-	material.POST("", s.materialUploadHandler)
-	material.DELETE("/:id", s.materialDeleteHandler)
+	material.GET("/:id", s.materialGet)
+	material.POST("", s.materialUpload)
+	material.DELETE("/:id", s.materialDelete)
 
 	// Маршруты для получения версий и создания новой версии
-	s.server.GET("/versions/:id", s.versionsListHandler)
-	s.server.POST("/version", s.versionCreateHandler)
+	s.server.GET("/versions/:id", s.versionsList)
+	s.server.POST("/version", s.versionCreate)
 }

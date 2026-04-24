@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (s *Server) healthCheckHandler(c echo.Context) error {
+func (s *Server) healthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"status": "ok",
 	})
@@ -20,31 +20,31 @@ func (s *Server) notImplemented(c echo.Context) error {
 	})
 }
 
-func (s *Server) authLoginHandler(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) authRefreshHandler(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) authLogoutHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) accountUpdateHandler(c echo.Context) error    { return s.notImplemented(c) }
-func (s *Server) accountGetHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) activityLogListHandler(c echo.Context) error  { return s.notImplemented(c) }
-func (s *Server) userCreateHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) userDeleteHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) userRoleUpdateHandler(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) rolesListHandler(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) statsGetHandler(c echo.Context) error         { return s.notImplemented(c) }
-func (s *Server) findUserHandler(c echo.Context) error         { return s.notImplemented(c) }
-func (s *Server) taskCreateHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) taskDeleteHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) taskAssignHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) editCreateHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) editStatusUpdateHandler(c echo.Context) error { return s.notImplemented(c) }
-func (s *Server) taskGetHandler(c echo.Context) error          { return s.notImplemented(c) }
-func (s *Server) tasksListHandler(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) tasksSearchHandler(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) taskStatusUpdateHandler(c echo.Context) error { return s.notImplemented(c) }
-func (s *Server) editsListHandler(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) materialGetHandler(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) versionsListHandler(c echo.Context) error     { return s.notImplemented(c) }
-func (s *Server) editDeleteHandler(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) materialUploadHandler(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) materialDeleteHandler(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) versionCreateHandler(c echo.Context) error    { return s.notImplemented(c) }
+func (s *Server) authLogin(c echo.Context) error        { return s.notImplemented(c) }
+func (s *Server) authRefresh(c echo.Context) error      { return s.notImplemented(c) }
+func (s *Server) authLogout(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) accountUpdate(c echo.Context) error    { return s.notImplemented(c) }
+func (s *Server) accountGet(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) activityLogList(c echo.Context) error  { return s.notImplemented(c) }
+func (s *Server) userCreate(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) userDelete(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) userRoleUpdate(c echo.Context) error   { return s.notImplemented(c) }
+func (s *Server) rolesList(c echo.Context) error        { return s.notImplemented(c) }
+func (s *Server) statsGet(c echo.Context) error         { return s.notImplemented(c) }
+func (s *Server) findUser(c echo.Context) error         { return s.notImplemented(c) }
+func (s *Server) taskCreate(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) taskDelete(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) taskAssign(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) editCreate(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) editStatusUpdate(c echo.Context) error { return s.notImplemented(c) }
+func (s *Server) taskGet(c echo.Context) error          { return s.notImplemented(c) }
+func (s *Server) tasksList(c echo.Context) error        { return s.notImplemented(c) }
+func (s *Server) tasksSearch(c echo.Context) error      { return s.notImplemented(c) }
+func (s *Server) taskStatusUpdate(c echo.Context) error { return s.notImplemented(c) }
+func (s *Server) editsList(c echo.Context) error        { return s.notImplemented(c) }
+func (s *Server) materialGet(c echo.Context) error      { return s.notImplemented(c) }
+func (s *Server) versionsList(c echo.Context) error     { return s.notImplemented(c) }
+func (s *Server) editDelete(c echo.Context) error       { return s.notImplemented(c) }
+func (s *Server) materialUpload(c echo.Context) error   { return s.notImplemented(c) }
+func (s *Server) materialDelete(c echo.Context) error   { return s.notImplemented(c) }
+func (s *Server) versionCreate(c echo.Context) error    { return s.notImplemented(c) }
