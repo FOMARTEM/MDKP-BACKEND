@@ -149,6 +149,7 @@ func (s *Server) registerRoutes() {
 	s.server.GET("/activitylog", s.activityLogList)
 
 	// Маршруты для управления пользователями
+	s.server.GET("/users", s.usersList)
 	s.server.POST("/user", s.userCreate)
 	s.server.DELETE("/user/:id", s.userDelete)
 	s.server.PUT("/user/role", s.userRoleUpdate)
