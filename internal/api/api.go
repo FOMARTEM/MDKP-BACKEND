@@ -189,3 +189,24 @@ func (s *Server) registerRoutes() {
 	s.server.GET("/versions/:id", s.versionsList)
 	s.server.POST("/version", s.versionCreate)
 }
+
+func (s *Server) getLimitOffset(e echo.Context) (int, int) {
+	limit, _ := strconv.Atoi(e.QueryParam("limit"))
+	offset, _ := strconv.Atoi(e.QueryParam("offset"))
+
+	if limit <= 0 {
+		limit = 10
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return limit, offset
+}
+
+func userIDFromToken(e echo.Context) int {
+	user := e.Get("user").(*jwt.Token)
+	//fmt.Print(user)
+	claims := user.Claims.(jwt.MapClaims)
+	//fmt.Print(claims)
+	return int(claims["id"].(float64))
+}
