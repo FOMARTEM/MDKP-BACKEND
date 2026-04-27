@@ -28,7 +28,7 @@ func (p *Provider) CreateUser(user entities.User) (*entities.User, error) {
 	err := p.conn.QueryRow(
 		`INSERT INTO public."Employee"
 		 ("LastName","FirstName","MiddleName","Email","Phone","BirthDate","PasswordHash","IsActive","Position_ID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "ID"`,
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "id"`,
 		user.LastName, user.FirstName, user.MiddleName, user.Email,
 		user.Phone, user.DateOfBirth, user.PasswordHash, user.IsActive, user.RoleID,
 	).Scan(&id)
@@ -56,6 +56,36 @@ func (p *Provider) GetUserByID(userID int) (*entities.User, error) {
 		 LEFT JOIN public."Position" p ON e."Position_ID" = p.id
 		 WHERE e.id = $1`,
 		userID,
+	).Scan(
+		&user.ID,
+		&user.LastName,
+		&user.FirstName,
+		&user.MiddleName,
+		&user.Phone,
+		&user.DateOfBirth,
+		&user.Email,
+		&user.IsActive,
+		&user.RoleID,
+		&user.Role,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// Получение данных пользователя (без пароля) по email
+func (p *Provider) GetUserByEmail(email string) (*entities.User, error) {
+	var user entities.User
+
+	err := p.conn.QueryRow(
+		`SELECT e.id, e."LastName", e."FirstName", e."MiddleName", e."Phone", e."BirthDate", e."Email", e."IsActive", p.id, p."Name"
+		 FROM public."Employee" e
+		 LEFT JOIN public."Position" p ON e."Position_ID" = p.id
+		 WHERE lower(e."Email") = lower($1)`,
+		email,
 	).Scan(
 		&user.ID,
 		&user.LastName,
@@ -132,10 +162,10 @@ func (p *Provider) UpdateUserPasswordHash(userID int, newPasswordHash string) er
 }
 
 // Удаление пользователя (Изменяем IsActive на false)
-func (p *Provider) DeactivateUser(userID int) error {
+func (p *Provider) ChangeUserActive(userID int, isActive bool) error {
 	_, err := p.conn.Exec(
-		`UPDATE public."Employee" SET "IsActive" = FALSE WHERE id = $1`,
-		userID,
+		`UPDATE public."Employee" SET "IsActive" = $2 WHERE id = $1`,
+		userID, isActive,
 	)
 	return err
 }
@@ -870,4 +900,73 @@ func (p *Provider) UpdateRevisionStatus(revisionID int, status string) error {
 		revisionID, status,
 	)
 	return err
+}
+
+// Получаем всевозможные роли пользователей системы из базы данных
+func (p *Provider) GetRoles() ([]entities.Role, error) {
+	rows, err := p.conn.Query(
+		`SELECT id, "Name", "Description"
+		 FROM public."Position"
+		 ORDER BY id`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var roles []entities.Role
+	for rows.Next() {
+		var role entities.Role
+		if err := rows.Scan(
+			&role.ID,
+			&role.Title,
+			&role.Description,
+		); err != nil {
+			return nil, err
+		}
+		roles = append(roles, role)
+	}
+	return roles, rows.Err()
+}
+
+// Получаем Id роли по её имени
+func (p *Provider) GetRoleId(role string) (int, error) {
+	var id int
+
+	err := p.conn.QueryRow(
+		`SELECT id
+		 FROM public."Position"
+		 where "Name" = $1`,
+		role,
+	).Scan(&id)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (p *Provider) GetStatuses() ([]entities.Status, error) {
+	rows, err := p.conn.Query(
+		`SELECT id, "Name", "Description"
+		 FROM public."Status"
+		 ORDER BY id`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var statuses []entities.Status
+	for rows.Next() {
+		var status entities.Status
+		if err := rows.Scan(
+			&status.ID,
+			&status.Title,
+			&status.Description,
+		); err != nil {
+			return nil, err
+		}
+		statuses = append(statuses, status)
+	}
+	return statuses, rows.Err()
 }
