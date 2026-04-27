@@ -24,7 +24,7 @@ type Server struct {
 }
 
 type jwtCustomClaims struct {
-	UserID int    `json:"user_id"`
+	UserID int    `json:"id"`
 	Role   string `json:"role"`
 	Email  string `json:"email"`
 	Name   string `json:"name"`
@@ -95,6 +95,7 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 			if c.Path() == "/auth" || c.Path() == "/auth/refresh" || c.Path() == "/auth/logout" {
 				return true
 			}
+
 			return false
 		},
 		// В ContextKey middleware кладёт токен целиком. Дальше в SuccessHandler раскладываем нужные поля в контекст.
@@ -111,6 +112,8 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 			if !ok || claims == nil {
 				return
 			}
+			// Совместимость: часть хендлеров ожидает ключ "id".
+			c.Set("id", claims.UserID)
 			c.Set("userID", claims.UserID)
 			c.Set("role", claims.Role)
 			c.Set("email", claims.Email)
@@ -135,28 +138,29 @@ func (s *Server) registerRoutes() {
 
 	// Группировка маршрутов для удобства и логической организации
 	// Маршруты для аутентификации
-	auth := s.server.Group("/auth")
-	auth.POST("", s.authLogin)
-	auth.POST("/refresh", s.authRefresh)
-	auth.POST("/logout", s.authLogout)
+	auth := s.server.Group("/auth") // +
+	auth.POST("", s.authLogin)      //++
+	//auth.POST("/refresh", s.authRefresh)
+	//auth.POST("/logout", s.authLogout)
 
 	// Маршруты для управления аккаунтом
-	account := s.server.Group("/account")
-	account.PUT("", s.accountUpdate)
-	account.GET("", s.accountGet)
+	account := s.server.Group("/account")             // ++
+	account.PUT("/password", s.accountPasswordUpdate) // ++
+	account.GET("/my", s.accountGet)                  // ++
 
 	// Маршрут для получения логов активности
-	s.server.GET("/activitylog", s.activityLogList)
+	s.server.GET("/activitylog", s.activityLogList) // ++
 
 	// Маршруты для управления пользователями
-	s.server.GET("/users", s.usersList)
-	s.server.POST("/user", s.userCreate)
-	s.server.DELETE("/user/:id", s.userDelete)
-	s.server.PUT("/user/role", s.userRoleUpdate)
+	user := s.server.Group("/user")
+	//user.GET("/list", s.usersList)
+	user.POST("", s.userCreate)         // ++
+	user.PUT("", s.userActive)          // ++
+	user.PUT("/role", s.userRoleUpdate) //
 
-	// Маршруты для получения ролей, статистики и поиска пользователей
-	s.server.GET("/roles", s.rolesList)
-	s.server.GET("/stats", s.statsGet)
+	// Маршруты для получения ролей, статуса и поиска пользователей
+	s.server.GET("/roles", s.rolesList)  // ++
+	s.server.GET("/status", s.statusGet) // ++
 	s.server.GET("/finduser", s.findUser)
 
 	// Маршруты для управления задачами
@@ -191,12 +195,12 @@ func (s *Server) registerRoutes() {
 	s.server.POST("/version", s.versionCreate)
 }
 
-func (s *Server) getLimitOffset(e echo.Context) (int, int) {
+func getLimitOffset(e echo.Context) (int, int) {
 	limit, _ := strconv.Atoi(e.QueryParam("limit"))
 	offset, _ := strconv.Atoi(e.QueryParam("offset"))
 
 	if limit <= 0 {
-		limit = 10
+		limit = 32
 	}
 	if offset < 0 {
 		offset = 0
@@ -204,10 +208,47 @@ func (s *Server) getLimitOffset(e echo.Context) (int, int) {
 	return limit, offset
 }
 
-func userIDFromToken(e echo.Context) int {
-	user := e.Get("user").(*jwt.Token)
-	//fmt.Print(user)
-	claims := user.Claims.(jwt.MapClaims)
-	//fmt.Print(claims)
-	return int(claims["id"].(float64))
+func userIDFromToken(e echo.Context) (int, error) {
+	if v := e.Get("id"); v != nil {
+		if id, ok := v.(int); ok {
+			return id, nil
+		}
+		return 0, echo.NewHTTPError(500, "invalid id type in context")
+	}
+
+	if v := e.Get("userID"); v != nil {
+		if id, ok := v.(int); ok {
+			return id, nil
+		}
+		return 0, echo.NewHTTPError(500, "invalid userID type in context")
+	}
+
+	// Fallback: если SuccessHandler не сработал, пробуем вытащить из самого токена.
+	token, ok := e.Get("user").(*jwt.Token)
+	if !ok || token == nil {
+		return 0, echo.NewHTTPError(401, "missing jwt token")
+	}
+
+	switch claims := token.Claims.(type) {
+	case *jwtCustomClaims:
+		if claims == nil || claims.UserID == 0 {
+			return 0, echo.NewHTTPError(401, "invalid jwt claims")
+		}
+		return claims.UserID, nil
+	case jwt.MapClaims:
+		raw, ok := claims["id"]
+		if !ok {
+			return 0, echo.NewHTTPError(401, "missing id in jwt claims")
+		}
+		switch n := raw.(type) {
+		case float64:
+			return int(n), nil
+		case int:
+			return n, nil
+		default:
+			return 0, echo.NewHTTPError(401, "invalid id type in jwt claims")
+		}
+	default:
+		return 0, echo.NewHTTPError(401, "unsupported jwt claims type")
+	}
 }
