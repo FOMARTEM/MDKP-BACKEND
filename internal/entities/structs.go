@@ -1,19 +1,19 @@
 package entities
 
 type User struct {
-	ID           int    `json:"id"`
+	ID           int    `json:"id,omitempty"`
 	LastName     string `json:"last_name"`
 	FirstName    string `json:"first_name"`
 	MiddleName   string `json:"middle_name"`
-	Phone        string `json:"phone" validate:"phone"`
-	DateOfBirth  string `json:"date_of_birth" validate:"date"`
+	Phone        string `json:"phone"`
+	DateOfBirth  string `json:"date_of_birth"`
 	Email        string `json:"email" validate:"email"`
-	Password     string `json:"password" validate:"min=8,max=16"`
-	PasswordHash string `json:"password_hash"`
-	Token        string `json:"token"`
-	IsActive     bool   `json:"is_active"`
-	Role         string `json:"role"`
-	RoleID       int    `json:"role_id"`
+	Password     string `json:"password,omitempty" validate:"min=8,max=16"`
+	PasswordHash string `json:"password_hash,omitempty"`
+	Token        string `json:"token,omitempty"`
+	IsActive     bool   `json:"is_active,omitempty"`
+	Role         string `json:"role,omitempty"`
+	RoleID       int    `json:"role_id,omitempty"`
 }
 
 type Tasks struct {
