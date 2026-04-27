@@ -6,8 +6,11 @@ type Provider interface {
 	// Создание пользователя
 	CreateUser(user entities.User) (*entities.User, error)
 
-	// Получение данных пользователя (без пароля)
+	// Получение данных пользователя (без пароля) по id
 	GetUserByID(userID int) (*entities.User, error)
+
+	// Получение данных пользователя (без пароля) по email
+	GetUserByEmail(email string) (*entities.User, error)
 
 	// Получение хеша пароля по почте
 	GetUserPasswordHashByEmail(email string) (string, error)
@@ -22,8 +25,8 @@ type Provider interface {
 	// Изменение хеша пароля пользователя
 	UpdateUserPasswordHash(userID int, newPasswordHash string) error
 
-	// Удаление пользователя (Изменяем IsActive на false)
-	DeactivateUser(userID int) error
+	// Удаление пользователя
+	ChangeUserActive(userID int, isActive bool) error
 
 	// Поиск пользователя по почте (фио, почта, права, телефон)
 	FindUsers(query string) ([]entities.User, error)
@@ -111,4 +114,12 @@ type Provider interface {
 
 	// Изменение статуса правки (Открыта, В работе, На проверке, Закрыта)
 	UpdateRevisionStatus(revisionID int, status string) error
+
+	// Получение ролей пользователей
+	GetRoles() ([]entities.Role, error)
+
+	// Получение Id роли по её названию
+	GetRoleId(role string) (int, error)
+
+	GetStatuses() ([]entities.Status, error)
 }
