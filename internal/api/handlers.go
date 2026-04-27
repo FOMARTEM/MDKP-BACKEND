@@ -1,50 +1,281 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
+	"github.com/go-playground/validator/v10"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
-func (s *Server) healthCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{
+func (s *Server) healthCheck(e echo.Context) error {
+	return e.JSON(http.StatusOK, map[string]any{
 		"status": "ok",
 	})
 }
 
-func (s *Server) notImplemented(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]any{
+func (s *Server) notImplemented(e echo.Context) error {
+	return e.JSON(http.StatusNotImplemented, map[string]any{
 		"error":  "not implemented",
-		"method": c.Request().Method,
-		"path":   c.Path(),
+		"method": e.Request().Method,
+		"path":   e.Path(),
 	})
 }
 
-func (s *Server) authLogin(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) authRefresh(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) authLogout(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) accountUpdate(c echo.Context) error    { return s.notImplemented(c) }
-func (s *Server) accountGet(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) activityLogList(c echo.Context) error  { return s.notImplemented(c) }
-func (s *Server) userCreate(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) userDelete(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) userRoleUpdate(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) rolesList(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) statsGet(c echo.Context) error         { return s.notImplemented(c) }
-func (s *Server) findUser(c echo.Context) error         { return s.notImplemented(c) }
-func (s *Server) taskCreate(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) taskDelete(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) taskAssign(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) editCreate(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) editStatusUpdate(c echo.Context) error { return s.notImplemented(c) }
-func (s *Server) taskGet(c echo.Context) error          { return s.notImplemented(c) }
-func (s *Server) tasksList(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) tasksSearch(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) taskStatusUpdate(c echo.Context) error { return s.notImplemented(c) }
-func (s *Server) editsList(c echo.Context) error        { return s.notImplemented(c) }
-func (s *Server) materialGet(c echo.Context) error      { return s.notImplemented(c) }
-func (s *Server) versionsList(c echo.Context) error     { return s.notImplemented(c) }
-func (s *Server) editDelete(c echo.Context) error       { return s.notImplemented(c) }
-func (s *Server) materialUpload(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) materialDelete(c echo.Context) error   { return s.notImplemented(c) }
-func (s *Server) versionCreate(c echo.Context) error    { return s.notImplemented(c) }
+// Аутентификация и получение токена JWT ++
+func (s *Server) authLogin(e echo.Context) error {
+	var user entities.User
+
+	err := e.Bind(&user)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	login, err := s.uc.Authorize(user)
+	if err != nil {
+		return e.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	if !*login {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid credentials"})
+	}
+
+	u, err := s.uc.SelectUserByEmail(user.Email)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	claims := jwtCustomClaims{
+		UserID: u.ID,
+		Role:   u.Role,
+		Email:  u.Email,
+		Name:   fmt.Sprintf("%s %s", u.LastName, u.FirstName),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 8)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)
+
+	u.Token, err = token.SignedString([]byte(s.secretKey))
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, u)
+}
+
+//func (s *Server) authRefresh(e echo.Context) error { return s.notImplemented(e) }
+//func (s *Server) authLogout(e echo.Context) error  { return s.notImplemented(e) }
+
+// Обновление пароля пользователя ++
+func (s *Server) accountPasswordUpdate(e echo.Context) error {
+	var oldPassword, newPassword, newPasswordConfirm string
+
+	// ПОлучаем данные из multipart/form-data
+	form, err := e.MultipartForm()
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	oldPassword = form.Value["old_password"][0]
+	newPassword = form.Value["new_password"][0]
+	newPasswordConfirm = form.Value["new_password_confirm"][0]
+
+	if newPassword != newPasswordConfirm {
+		return e.JSON(http.StatusBadRequest, entities.ErrPasswordsDoNotMatch)
+	}
+
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
+
+	user, err := s.uc.SelectUserByID(userID)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	user.Password = oldPassword
+
+	login, err := s.uc.Authorize(*user)
+	if err != nil {
+		return e.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	if !*login {
+		return e.JSON(http.StatusUnauthorized, entities.ErrInvalidPassword)
+	}
+
+	user.Password = newPassword
+
+	err = s.uc.UpdateUserPassword(user.ID, user.Password)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
+}
+
+// Получение данных аккаунта текущего пользователя ++
+func (s *Server) accountGet(e echo.Context) error {
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
+
+	user, err := s.uc.SelectUserByID(userID)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, user)
+}
+
+// Получение Логов, с возможностью фильтрации по дате, пользователю и т.д. ++
+func (s *Server) activityLogList(e echo.Context) error {
+	// Получаем ID пользователя из контекста, установленного JWT middleware
+	/*
+		_, err := userIDFromToken(e)
+		if err != nil {
+			return err
+		}
+	*/
+	limit, offset := getLimitOffset(e)
+
+	userEmail := e.QueryParam("email")
+	userIdStr := e.QueryParam("user_id")
+	var userId int
+	var err error
+	if userIdStr != "" {
+		userId, err = strconv.Atoi(userIdStr)
+		if err != nil {
+			return e.JSON(http.StatusBadRequest, entities.ErrInvalidQueryParams)
+		}
+	}
+	startDate := e.QueryParam("start_date")
+	endDate := e.QueryParam("end_date")
+
+	var logs []entities.Log
+
+	logs, err = s.uc.GetLogs(userId, userEmail, startDate, endDate, limit, offset)
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, logs)
+}
+
+//func (s *Server) usersList(e echo.Context) error { return s.notImplemented(e) }
+
+// Создание сотрудника в системе ++
+func (s *Server) userCreate(e echo.Context) error {
+	var user entities.User
+
+	err := e.Bind(&user)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = validator.New().Struct(user)
+	if err != nil {
+		return e.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	createdUser, err := s.uc.CreateUser(user)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, createdUser)
+}
+
+// Изменение фалага активности
+func (s *Server) userActive(e echo.Context) error {
+	userEmail := e.QueryParam("email")
+
+	if userEmail == "" {
+		return e.JSON(http.StatusBadRequest, entities.ErrInvalidQueryParams)
+	}
+
+	err := s.uc.UserActiveChange(userEmail)
+	if err != nil {
+		e.JSON(http.StatusInternalServerError, err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
+}
+
+func (s *Server) userRoleUpdate(e echo.Context) error { return s.notImplemented(e) }
+
+// Получаем список ролей для установки, либо поиска по ним
+func (s *Server) rolesList(e echo.Context) error {
+	userID := e.Get("id")
+	if userID == nil {
+		return e.JSON(http.StatusUnauthorized, entities.ErrInvalidToken)
+	}
+
+	var roles []entities.Role
+
+	roles, err := s.uc.GetRoles()
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, roles)
+}
+
+// Получение возмможных статусов задачи
+func (s *Server) statusGet(e echo.Context) error {
+	var statuses []entities.Status
+
+	statuses, err := s.uc.GetStatuses()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, statuses)
+}
+
+func (s *Server) findUser(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) taskCreate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) taskDelete(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) taskAssign(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) taskGet(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) tasksList(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) taskStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editsList(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) materialGet(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) versionsList(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editDelete(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) materialUpload(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) versionCreate(e echo.Context) error { return s.notImplemented(e) }
