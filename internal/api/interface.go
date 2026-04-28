@@ -22,4 +22,6 @@ type Usecase interface {
 	CreateUser(user entities.User) (*entities.User, error)
 	// Удаление пользователя
 	UserActiveChange(userEmail string) error
+	// Получаем всех пользователей с определёнными правами
+	GetUsersByRole(user entities.User) ([]entities.User, error)
 }

@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"strings"
-
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
 	"github.com/lib/pq"
 )
@@ -171,51 +169,63 @@ func (p *Provider) ChangeUserActive(userID int, isActive bool) error {
 }
 
 // Поиск пользователя по почте (фио, почта, права, телефон)
-func (p *Provider) FindUsers(query string) ([]entities.User, error) {
-	q := strings.TrimSpace(query)
-	if q == "" {
+func (p *Provider) FindUsers(user entities.User, searchBy string) ([]entities.User, error) {
+	var query string
+	var searchValue string
+
+	switch searchBy {
+	case "email":
+		query = `SELECT * FROM search_employee_flexible(p_email := $1)`
+		searchValue = user.Email
+	case "position":
+		query = `SELECT * FROM search_employee_flexible(p_position_name := $1)`
+		searchValue = user.Role
+	case "last_name":
+		query = `SELECT * FROM search_employee_flexible(p_last_name := $1)`
+		searchValue = user.LastName
+	case "first_name":
+		query = `SELECT * FROM search_employee_flexible(p_first_name := $1)`
+		searchValue = user.FirstName
+	default:
 		return []entities.User{}, nil
 	}
-	rows, err := p.conn.Query(
-		`SELECT e.id, e."LastName", e."FirstName", e."MiddleName", e."Phone", e."BirthDate", e."Email", e."IsActive", p.id, p."Name"
-		 FROM public."Employee" e
-		 JOIN public."Position" p ON p.id = e."Position_ID"
-		 WHERE
-			lower(e."Email") LIKE lower('%' || $1 || '%')
-			OR e."LastName" ILIKE '%' || $1 || '%'
-			OR e."FirstName" ILIKE '%' || $1 || '%'
-			OR e."MiddleName" ILIKE '%' || $1 || '%'
-			OR e."Phone" ILIKE '%' || $1 || '%'
-			OR TRIM(p."Name") ILIKE '%' || $1 || '%'
 
-		 ORDER BY e.id`,
-		q,
-	)
+	if searchValue == "" {
+		return []entities.User{}, nil
+	}
+
+	rows, err := p.conn.Query(query, searchValue)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	var users []entities.User
+
 	for rows.Next() {
 		var user entities.User
-		if err := rows.Scan(
-			&user.ID,
-			&user.LastName,
-			&user.FirstName,
-			&user.MiddleName,
-			&user.Phone,
-			&user.DateOfBirth,
-			&user.Email,
-			&user.IsActive,
-			&user.RoleID,
-			&user.Role,
-		); err != nil {
+		// Порядок должен соответствовать RETURNS TABLE в функции:
+		// id, last_name, first_name, middle_name, email, phone, birth_date, is_active, position_name, position_id
+		err := rows.Scan(
+			&user.ID,          // id
+			&user.LastName,    // last_name
+			&user.FirstName,   // first_name
+			&user.MiddleName,  // middle_name
+			&user.Email,       // email
+			&user.Phone,       // phone
+			&user.DateOfBirth, // birth_date
+			&user.IsActive,    // is_active
+			&user.Role,        // position_name - сохраняем в Role
+			&user.RoleID,      // position_id
+		)
+		if err != nil {
 			return nil, err
 		}
+
 		users = append(users, user)
 	}
-	return users, rows.Err()
 
+	return users, rows.Err()
 }
 
 // Поиск пользователя по правам (Администратор, Руководитель, Редактор, Автор)

@@ -29,7 +29,7 @@ type Provider interface {
 	ChangeUserActive(userID int, isActive bool) error
 
 	// Поиск пользователя по почте (фио, почта, права, телефон)
-	FindUsers(query string) ([]entities.User, error)
+	FindUsers(user entities.User, searchBy string) ([]entities.User, error)
 
 	// Поиск пользователя по правам (Администратор, Руководитель, Редактор, Автор)
 	ListUsersByRole(roleID int) ([]entities.User, error)

@@ -3,6 +3,7 @@ package usecase
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
 	"golang.org/x/crypto/bcrypt"
@@ -195,4 +196,28 @@ func (u *Usecase) UserActiveChange(userEmail string) error {
 	}
 
 	return nil
+}
+
+func (u *Usecase) GetUsersByRole(user entities.User) ([]entities.User, error) {
+	var searchBy string
+
+	// Определяем по какому полю искать
+	if user.Role != "" {
+		searchBy = "position"
+	} else if user.Email != "" {
+		searchBy = "email"
+	} else if user.LastName != "" {
+		searchBy = "last_name"
+	} else if user.FirstName != "" {
+		searchBy = "first_name"
+	} else {
+		return nil, fmt.Errorf("no search criteria provided")
+	}
+
+	users, err := u.p.FindUsers(user, searchBy)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

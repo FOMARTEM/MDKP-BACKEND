@@ -246,7 +246,23 @@ func (s *Server) statusGet(e echo.Context) error {
 	return e.JSON(http.StatusOK, statuses)
 }
 
-func (s *Server) findUser(e echo.Context) error { return s.notImplemented(e) }
+// Ищем пользователя по его Роли
+func (s *Server) findUser(e echo.Context) error {
+	var user entities.User
+
+	err := e.Bind(&user)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	users, err := s.uc.GetUsersByRole(user)
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, users)
+}
 
 func (s *Server) taskCreate(e echo.Context) error { return s.notImplemented(e) }
 
