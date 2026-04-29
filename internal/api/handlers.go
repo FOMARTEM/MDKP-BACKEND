@@ -198,7 +198,7 @@ func (s *Server) userCreate(e echo.Context) error {
 	return e.JSON(http.StatusOK, createdUser)
 }
 
-// Изменение фалага активности
+// Изменение фалага активности ++
 func (s *Server) userActive(e echo.Context) error {
 	userEmail := e.QueryParam("email")
 
@@ -214,9 +214,28 @@ func (s *Server) userActive(e echo.Context) error {
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
 }
 
-func (s *Server) userRoleUpdate(e echo.Context) error { return s.notImplemented(e) }
+func (s *Server) userRoleUpdate(e echo.Context) error {
+	userEmail := e.QueryParam("email")
+	roleIDSTR := e.QueryParam("roleID")
 
-// Получаем список ролей для установки, либо поиска по ним
+	if userEmail == "" || roleIDSTR == "" {
+		return e.JSON(http.StatusBadRequest, entities.ErrInvalidQueryParams)
+	}
+
+	roleID, err := strconv.Atoi(roleIDSTR)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, entities.ErrInvalidQueryParams)
+	}
+
+	err = s.uc.UserRoleUpdate(userEmail, roleID)
+	if err != nil {
+		e.JSON(http.StatusInternalServerError, err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
+}
+
+// Получаем список ролей для установки, либо поиска по ним ++
 func (s *Server) rolesList(e echo.Context) error {
 	userID := e.Get("id")
 	if userID == nil {
@@ -234,7 +253,7 @@ func (s *Server) rolesList(e echo.Context) error {
 	return e.JSON(http.StatusOK, roles)
 }
 
-// Получение возмможных статусов задачи
+// Получение возмможных статусов задачи ++
 func (s *Server) statusGet(e echo.Context) error {
 	var statuses []entities.Status
 
@@ -246,7 +265,7 @@ func (s *Server) statusGet(e echo.Context) error {
 	return e.JSON(http.StatusOK, statuses)
 }
 
-// Ищем пользователя по его Роли
+// Ищем пользователя по его Роли ++
 func (s *Server) findUser(e echo.Context) error {
 	var user entities.User
 
