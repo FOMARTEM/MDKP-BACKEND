@@ -221,3 +221,28 @@ func (u *Usecase) GetUsersByRole(user entities.User) ([]entities.User, error) {
 
 	return users, nil
 }
+
+func (u *Usecase) UserRoleUpdate(userEmail string, roleID int) error {
+	user, err := u.p.GetUserByEmail(userEmail)
+	if err != nil {
+		return err
+	}
+
+	err = u.p.UpdateUserRole(user.ID, roleID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *Usecase) GetUsers() ([]entities.User, error) {
+	users, err := u.p.ListUsers()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}

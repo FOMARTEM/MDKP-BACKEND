@@ -153,10 +153,10 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления пользователями
 	user := s.server.Group("/user")
-	//user.GET("/list", s.usersList)
+	user.GET("/list", s.usersList)
 	user.POST("", s.userCreate)         // ++
 	user.PUT("/active", s.userActive)   // ++
-	user.PUT("/role", s.userRoleUpdate) //
+	user.PUT("/role", s.userRoleUpdate) // --
 
 	// Маршруты для получения ролей, статуса и поиска пользователей
 	s.server.GET("/roles", s.rolesList)   // ++

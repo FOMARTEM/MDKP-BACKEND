@@ -24,4 +24,8 @@ type Usecase interface {
 	UserActiveChange(userEmail string) error
 	// Получаем всех пользователей с определёнными правами
 	GetUsersByRole(user entities.User) ([]entities.User, error)
+	// Обновление роли пользователя
+	UserRoleUpdate(userEmail string, roleID int) error
+	// Список пользователей
+	GetUsers() ([]entities.User, error)
 }

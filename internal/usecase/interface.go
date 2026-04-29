@@ -34,6 +34,9 @@ type Provider interface {
 	// Поиск пользователя по правам (Администратор, Руководитель, Редактор, Автор)
 	ListUsersByRole(roleID int) ([]entities.User, error)
 
+	// Список всех пользователей
+	ListUsers() ([]entities.User, error)
+
 	// Изменение прав пользователя (Администратор, Руководитель, Редактор, Автор)
 	UpdateUserRole(userID int, roleID int) error
 

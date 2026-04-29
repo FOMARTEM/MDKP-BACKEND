@@ -264,6 +264,40 @@ func (p *Provider) ListUsersByRole(roleID int) ([]entities.User, error) {
 	return users, rows.Err()
 }
 
+// Поиск пользователя по правам (Администратор, Руководитель, Редактор, Автор)
+func (p *Provider) ListUsers() ([]entities.User, error) {
+	rows, err := p.conn.Query(
+		`SELECT e.id, e."LastName", e."FirstName", e."MiddleName", e."Phone", e."BirthDate", e."Email", e."IsActive", p.id, p."Name"
+		 FROM public."Employee" e
+		 JOIN public."Position" p ON p.id = e."Position_ID"
+		 ORDER BY e.id`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var users []entities.User
+	for rows.Next() {
+		var user entities.User
+		if err := rows.Scan(
+			&user.ID,
+			&user.LastName,
+			&user.FirstName,
+			&user.MiddleName,
+			&user.Phone,
+			&user.DateOfBirth,
+			&user.Email,
+			&user.IsActive,
+			&user.RoleID,
+			&user.Role,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, rows.Err()
+}
+
 // Изменение прав пользователя (Администратор, Руководитель, Редактор, Автор)
 func (p *Provider) UpdateUserRole(userID int, roleID int) error {
 	_, err := p.conn.Exec(

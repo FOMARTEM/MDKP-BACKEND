@@ -55,7 +55,7 @@ func (s *Server) authLogin(e echo.Context) error {
 		Email:  u.Email,
 		Name:   fmt.Sprintf("%s %s", u.LastName, u.FirstName),
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 8)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 8000)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -173,7 +173,16 @@ func (s *Server) activityLogList(e echo.Context) error {
 	return e.JSON(http.StatusOK, logs)
 }
 
-//func (s *Server) usersList(e echo.Context) error { return s.notImplemented(e) }
+func (s *Server) usersList(e echo.Context) error {
+	//limit, offset := getLimitOffset(e)
+
+	users, err := s.uc.GetUsers()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, users)
+}
 
 // Создание сотрудника в системе ++
 func (s *Server) userCreate(e echo.Context) error {
