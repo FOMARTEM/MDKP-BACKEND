@@ -58,8 +58,8 @@ type Provider interface {
 	// Удаление задачи
 	DeleteTask(id int) error
 
-	// Получение списка задач пользователя (по id или почте)
-	GetTasksByUserID(userID int, email string) ([]entities.Tasks, error)
+	// Получение списка задач пользователя (по id)
+	GetTasksByUserID(userID int) ([]entities.Tasks, error)
 
 	// Получение задачи по id
 	GetTaskByID(taskID int) (*entities.Tasks, error)

@@ -337,7 +337,7 @@ func (s *Server) taskDelete(e echo.Context) error {
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
 }
 
-func (s *Server) taskAssign(e echo.Context) error { return s.notImplemented(e) }
+//func (s *Server) taskAssign(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) taskGet(e echo.Context) error {
 	taskId, err := strconv.Atoi(e.Param("id"))
@@ -377,9 +377,22 @@ func (s *Server) taskStatusUpdate(e echo.Context) error {
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
 }
 
-func (s *Server) tasksList(e echo.Context) error { return s.notImplemented(e) }
+func (s *Server) tasksList(e echo.Context) error {
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
 
-func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
+	tasks, err := s.uc.TasksList(userID)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, tasks)
+}
+
+//func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
 

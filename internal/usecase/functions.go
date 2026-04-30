@@ -283,3 +283,9 @@ func (u *Usecase) TaskStatusUpdate(taskId int, status string) error {
 
 	return err
 }
+
+func (u *Usecase) TasksList(userID int) ([]entities.Tasks, error) {
+	tasks, err := u.p.GetTasksByUserID(userID)
+
+	return tasks, err
+}

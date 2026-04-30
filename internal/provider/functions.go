@@ -462,14 +462,26 @@ func (p *Provider) DeleteTask(id int) error {
 }
 
 // Получение списка задач пользователя (по id или почте)
-func (p *Provider) GetTasksByUserID(userID int, email string) ([]entities.Tasks, error) {
+func (p *Provider) GetTasksByUserID(userID int) ([]entities.Tasks, error) {
 	rows, err := p.conn.Query(
-		`SELECT t.id, t."Title", t."Description", t."CreateDate", t."DeadlineDate", t."ReadyDate", t."Priority", t."CreatorId", t."EditorID", t."AuthorID", t."StatusID
-		 FROM public."Task" t
-		 JOIN public."Employee" e ON e.id = t."AuthorID"
-		 WHERE e.id = $1 OR lower(e."Email") = lower($2)
-		 ORDER BY t.id`,
-		userID, email,
+		`SELECT 			
+			id, 
+			"Title", 
+			"Description", 
+			"CreateDate", 
+			"DeadlineDate", 
+			COALESCE("ReadyDate"::text, '') as "ReadyDate", 
+			"Priority", 
+			"CreatorId", 
+			"EditorID", 
+			"AuthorID", 
+			"StatusID"
+		FROM public."Task" t
+		WHERE t."CreatorId" = $1 
+			OR t."EditorID" = $1 
+			OR t."AuthorID" = $1
+		ORDER BY t.id`,
+		userID,
 	)
 	if err != nil {
 		return nil, err
@@ -575,7 +587,18 @@ func (p *Provider) UpdateTaskReadyDate(taskID int, readyDate string) error {
 // Получение задач по приоритетам
 func (p *Provider) GetTasksByPriority(priority int) ([]entities.Tasks, error) {
 	rows, err := p.conn.Query(
-		`SELECT id, "Title", "Description", "CreateDate", "DeadlineDate", "ReadyDate", "Priority", "CreatorId", "EditorID", "AuthorID", "StatusID"
+		`SELECT 
+			id, 
+			"Title", 
+			"Description", 
+			"CreateDate", 
+			"DeadlineDate", 
+			COALESCE("ReadyDate"::text, '') as "ReadyDate", 
+			"Priority", 
+			"CreatorId", 
+			"EditorID", 
+			"AuthorID", 
+			"StatusID"
 		 FROM public."Task"
 		 WHERE "Priority" = $1
 		 ORDER BY id`,
@@ -614,7 +637,18 @@ func (p *Provider) GetTasksByStatuses(statuses []string) ([]entities.Tasks, erro
 		return []entities.Tasks{}, nil
 	}
 	query := `
-		SELECT id, "Title", "Description", "CreateDate", "DeadlineDate", "ReadyDate", "Priority", "CreatorId", "EditorID", "AuthorID", "StatusID"
+		SELECT 
+			id, 
+			"Title", 
+			"Description", 
+			"CreateDate", 
+			"DeadlineDate", 
+			COALESCE("ReadyDate"::text, '') as "ReadyDate", 
+			"Priority", 
+			"CreatorId", 
+			"EditorID", 
+			"AuthorID", 
+			"StatusID"
 		FROM public."Task"
 		WHERE "StatusID" IN (SELECT id FROM public."Status" WHERE "Name" = ANY($1))
 		ORDER BY id`

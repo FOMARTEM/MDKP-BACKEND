@@ -165,15 +165,15 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления задачами
 	task := s.server.Group("/task")
-	task.POST("", s.taskCreate)                 // ++
-	task.DELETE("/:id", s.taskDelete)           // ++
-	task.PUT("/:id/assign", s.taskAssign)       //
+	task.POST("", s.taskCreate)       // ++
+	task.DELETE("/:id", s.taskDelete) // ++
+	//task.PUT("/:id/assign", s.taskAssign)       //
 	task.GET("/:id", s.taskGet)                 // ++
 	task.PUT("/:id/status", s.taskStatusUpdate) // ++
 
 	// Маршруты для получения и поиска задач
-	task.GET("/list", s.tasksList)
-	task.GET("/search", s.tasksSearch)
+	task.GET("/list", s.tasksList) // ++
+	//task.GET("/search", s.tasksSearch) //
 
 	// Маршруты для управления правками
 	edit := s.server.Group("/edit")

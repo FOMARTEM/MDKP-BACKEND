@@ -38,4 +38,6 @@ type Usecase interface {
 	TaskGetById(taskId int) (*entities.Tasks, error)
 	// Изменение статуса задачи
 	TaskStatusUpdate(taskId int, status string) error
+	// Список задач текущего пользоватля
+	TasksList(userID int) ([]entities.Tasks, error)
 }
