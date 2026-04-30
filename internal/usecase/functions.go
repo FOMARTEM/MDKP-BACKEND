@@ -267,3 +267,19 @@ func (u *Usecase) TaskDelete(id int) error {
 
 	return err
 }
+
+func (u *Usecase) TaskGetById(taskId int) (*entities.Tasks, error) {
+	task, err := u.p.GetTaskByID(taskId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (u *Usecase) TaskStatusUpdate(taskId int, status string) error {
+	err := u.p.UpdateTaskStatus(taskId, status)
+
+	return err
+}

@@ -502,9 +502,20 @@ func (p *Provider) GetTasksByUserID(userID int, email string) ([]entities.Tasks,
 func (p *Provider) GetTaskByID(taskID int) (*entities.Tasks, error) {
 	var task entities.Tasks
 	err := p.conn.QueryRow(
-		`SELECT id, "Title", "Description", "CreateDate", "DeadlineDate", "ReadyDate", "Priority", "CreatorId", "EditorID", "AuthorID", "StatusID"
-		 FROM public."Task"
-		 WHERE id = $1`,
+		`SELECT 
+			id, 
+			"Title", 
+			"Description", 
+			"CreateDate", 
+			"DeadlineDate", 
+			COALESCE("ReadyDate"::text, '') as "ReadyDate", 
+			"Priority", 
+			"CreatorId", 
+			"EditorID", 
+			"AuthorID", 
+			"StatusID"
+		FROM public."Task"
+		WHERE id = $1`,
 		taskID,
 	).Scan(
 		&task.ID,

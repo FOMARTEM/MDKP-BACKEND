@@ -34,4 +34,8 @@ type Usecase interface {
 	CreateTask(task entities.Tasks) (*entities.Tasks, error)
 	// Удаление задачи
 	TaskDelete(id int) error
+	// Получение задачи по её Id
+	TaskGetById(taskId int) (*entities.Tasks, error)
+	// Изменение статуса задачи
+	TaskStatusUpdate(taskId int, status string) error
 }

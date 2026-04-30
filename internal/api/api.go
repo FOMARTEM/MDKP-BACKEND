@@ -168,8 +168,8 @@ func (s *Server) registerRoutes() {
 	task.POST("", s.taskCreate)                 // ++
 	task.DELETE("/:id", s.taskDelete)           // ++
 	task.PUT("/:id/assign", s.taskAssign)       //
-	task.GET("/:id", s.taskGet)                 //
-	task.PUT("/:id/status", s.taskStatusUpdate) //
+	task.GET("/:id", s.taskGet)                 // ++
+	task.PUT("/:id/status", s.taskStatusUpdate) // ++
 
 	// Маршруты для получения и поиска задач
 	task.GET("/list", s.tasksList)
