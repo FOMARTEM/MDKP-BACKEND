@@ -394,20 +394,20 @@ func (s *Server) tasksList(e echo.Context) error {
 
 //func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
 
+func (s *Server) materialUpload(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) materialGet(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) versionCreate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) versionsList(e echo.Context) error { return s.notImplemented(e) }
+
 func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) editStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) editsList(e echo.Context) error { return s.notImplemented(e) }
 
-func (s *Server) materialGet(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) versionsList(e echo.Context) error { return s.notImplemented(e) }
-
 func (s *Server) editDelete(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) materialUpload(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) versionCreate(e echo.Context) error { return s.notImplemented(e) }
