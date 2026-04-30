@@ -28,4 +28,10 @@ type Usecase interface {
 	UserRoleUpdate(userEmail string, roleID int) error
 	// Список пользователей
 	GetUsers() ([]entities.User, error)
+
+	// Работа с задачами
+	// Создание задачи
+	CreateTask(task entities.Tasks) (*entities.Tasks, error)
+	// Удаление задачи
+	TaskDelete(id int) error
 }

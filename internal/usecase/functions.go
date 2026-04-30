@@ -246,3 +246,24 @@ func (u *Usecase) GetUsers() ([]entities.User, error) {
 
 	return users, nil
 }
+
+// Работа с задачами
+
+// Добавть проверку что пользователь создающий задачу является руководителем, а остальные соотвуствуют другим ролям
+// Добавить проверку дедлайна
+// Добавить логи
+func (u *Usecase) CreateTask(task entities.Tasks) (*entities.Tasks, error) {
+	taskCreated, err := u.p.CreateTask(task)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return taskCreated, nil
+}
+
+func (u *Usecase) TaskDelete(id int) error {
+	err := u.p.DeleteTask(id)
+
+	return err
+}

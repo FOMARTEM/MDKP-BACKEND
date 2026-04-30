@@ -156,7 +156,7 @@ func (s *Server) registerRoutes() {
 	user.GET("/list", s.usersList)
 	user.POST("", s.userCreate)         // ++
 	user.PUT("/active", s.userActive)   // ++
-	user.PUT("/role", s.userRoleUpdate) // --
+	user.PUT("/role", s.userRoleUpdate) // ++
 
 	// Маршруты для получения ролей, статуса и поиска пользователей
 	s.server.GET("/roles", s.rolesList)   // ++
@@ -165,15 +165,15 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления задачами
 	task := s.server.Group("/task")
-	task.POST("", s.taskCreate)
-	task.DELETE("/:id", s.taskDelete)
-	task.PUT("/:id/assign", s.taskAssign)
-	task.GET("/:id", s.taskGet)
-	task.PUT("/:id/status", s.taskStatusUpdate)
+	task.POST("", s.taskCreate)                 // ++
+	task.DELETE("/:id", s.taskDelete)           // ++
+	task.PUT("/:id/assign", s.taskAssign)       //
+	task.GET("/:id", s.taskGet)                 //
+	task.PUT("/:id/status", s.taskStatusUpdate) //
 
 	// Маршруты для получения и поиска задач
-	s.server.GET("/tasks", s.tasksList)
-	s.server.GET("/tasks/search", s.tasksSearch)
+	task.GET("/list", s.tasksList)
+	task.GET("/search", s.tasksSearch)
 
 	// Маршруты для управления правками
 	edit := s.server.Group("/edit")

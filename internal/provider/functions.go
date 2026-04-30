@@ -423,13 +423,12 @@ func (p *Provider) GetLogsByDateRange(startDate, endDate string) ([]entities.Log
 func (p *Provider) CreateTask(task entities.Tasks) (*entities.Tasks, error) {
 	var id int
 	err := p.conn.QueryRow(
-		`INSERT INTO public."Task" ("Title","Description","CreateDate","DeadlineDate","ReadyDate","Priority","CreatorId","EditorID","AuthorID","StatusID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING "ID"`,
+		`INSERT INTO public."Task" ("Title","Description","CreateDate","DeadlineDate","Priority","CreatorId","EditorID","AuthorID","StatusID")
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "id"`,
 		task.Title,
 		task.Description,
 		task.DateCreated,
 		task.DateDedline,
-		task.DateClosed,
 		task.Priority,
 		task.IdCreator,
 		task.IdRedactor,
@@ -452,6 +451,14 @@ func (p *Provider) CreateTask(task entities.Tasks) (*entities.Tasks, error) {
 		IdAuthor:    task.IdAuthor,
 		IdStatus:    task.IdStatus,
 	}, nil
+}
+
+func (p *Provider) DeleteTask(id int) error {
+	_, err := p.conn.Exec(
+		`DELETE FROM public."Task" WHERE id = $1`,
+		id,
+	)
+	return err
 }
 
 // Получение списка задач пользователя (по id или почте)
@@ -641,7 +648,7 @@ func (p *Provider) CreateVersion(version entities.Version) (*entities.Version, e
 	var id int
 	err := p.conn.QueryRow(
 		`INSERT INTO public."Version" ("NumberVersion","CreateDate","Title","Description","CreatorID","MaterialID","TaskID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING "ID"`,
+		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 		version.NumberVersion,
 		version.DateCreated,
 		version.Title,
@@ -747,7 +754,7 @@ func (p *Provider) CreateMaterial(material entities.Material) (*entities.Materia
 	var id int
 	err := p.conn.QueryRow(
 		`INSERT INTO public."Material" ("Title","Extension","Description","CreatorID","TaskID")
-		 VALUES ($1, $2, $3, $4, $5) RETURNING "ID"`,
+		 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 		material.Title,
 		material.Extension,
 		material.Description,
@@ -853,7 +860,7 @@ func (p *Provider) CreateRevision(revision entities.Revision) (*entities.Revisio
 	var id int
 	err := p.conn.QueryRow(
 		`INSERT INTO public."Revision" ("NumberRevision","CreateDate","Title","Description","CreatorID","VersionID","StatusID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING "ID"`,
+		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 		revision.NumberRevision,
 		revision.DateCreated,
 		revision.Title,

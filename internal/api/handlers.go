@@ -292,15 +292,52 @@ func (s *Server) findUser(e echo.Context) error {
 	return e.JSON(http.StatusOK, users)
 }
 
-func (s *Server) taskCreate(e echo.Context) error { return s.notImplemented(e) }
+// Создание задачи
+func (s *Server) taskCreate(e echo.Context) error {
+	var task entities.Tasks
 
-func (s *Server) taskDelete(e echo.Context) error { return s.notImplemented(e) }
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
+
+	err = e.Bind(&task)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = validator.New().Struct(task)
+	if err != nil {
+		return e.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	task.IdCreator = userID
+
+	taskCreated, err := s.uc.CreateTask(task)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, taskCreated)
+}
+
+func (s *Server) taskDelete(e echo.Context) error {
+	taskId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = s.uc.TaskDelete(taskId)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
+}
 
 func (s *Server) taskAssign(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
-
-func (s *Server) editStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) taskGet(e echo.Context) error { return s.notImplemented(e) }
 
@@ -309,6 +346,10 @@ func (s *Server) tasksList(e echo.Context) error { return s.notImplemented(e) }
 func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) taskStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
+
+func (s *Server) editStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) editsList(e echo.Context) error { return s.notImplemented(e) }
 

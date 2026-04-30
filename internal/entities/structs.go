@@ -20,9 +20,9 @@ type Tasks struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title" required:"true"`
 	Description string `json:"description" required:"true"`
-	DateCreated string `json:"date_created" validate:"date"`
-	DateDedline string `json:"date_deadline" validate:"date"`
-	DateClosed  string `json:"date_closed" validate:"date"`
+	DateCreated string `json:"date_created"`
+	DateDedline string `json:"date_deadline"`
+	DateClosed  string `json:"date_closed" `
 	Priority    int    `json:"priority" required:"true"`
 	IdCreator   int    `json:"id_creator"`
 	IdRedactor  int    `json:"id_redactor"`
