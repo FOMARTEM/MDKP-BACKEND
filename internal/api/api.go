@@ -190,9 +190,10 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления материалами
 	material := s.server.Group("/material")
-	material.GET("/:id", s.materialGet)
-	material.POST("/:id", s.materialUpload) // material/:id (поста)
-	material.DELETE("/:id", s.materialDelete)
+	material.GET("/:id", s.materialGet)               // ++
+	material.GET("/download/:id", s.materialDownload) // ++
+	material.POST("/:id", s.materialUpload)           // ++
+	material.DELETE("/:id", s.materialDelete)         // Удаление файла
 
 	// Маршруты для получения версий и создания новой версии
 	s.server.GET("/versions/:id", s.versionsList)
@@ -259,28 +260,6 @@ func userIDFromToken(e echo.Context) (int, error) {
 
 func saveMaterialFile(file *multipart.FileHeader, material entities.Material) error {
 	dst := fmt.Sprintf("./materials/%s-%d.%s", material.Title, material.ID, material.Extension)
-
-	src, err := file.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-
-	//на случай если нету папки
-	os.MkdirAll("./materials", 0755)
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, src)
-	return err
-}
-
-func saveCommentImage(file *multipart.FileHeader, id int) error {
-	dst := fmt.Sprintf("./materials/comment-%d.png", id)
 
 	src, err := file.Open()
 	if err != nil {

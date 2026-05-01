@@ -44,4 +44,6 @@ type Usecase interface {
 	// Работа с материалом
 	// Создание материала
 	CreateMaterial(material entities.Material) (int, error)
+	// Получаем данные по материалу
+	GetMaterial(materialId int) (*entities.Material, error)
 }

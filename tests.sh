@@ -92,3 +92,10 @@ curl -X POST http://127.0.0.1:8080/material/1 \
   -H "Authorization: Bearer $Ruk_TOKEN" \
   -F "description=Описание материала" \
   -F "file=@/home/shahov/Documents/Test/Шахов-ПР1.1-1.4-1.pdf"
+
+curl -X GET http://127.0.0.1:8080/material/8 \
+  -H "Authorization: Bearer $Ruk_TOKEN"
+
+curl -X GET http://127.0.0.1:8080/material/download/8 \
+  -H "Authorization: Bearer $Ruk_TOKEN" \
+  -J -L   --remote-name

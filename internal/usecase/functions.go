@@ -299,3 +299,13 @@ func (u *Usecase) CreateMaterial(material entities.Material) (int, error) {
 
 	return createdMaterial.ID, nil
 }
+
+func (u *Usecase) GetMaterial(materialId int) (*entities.Material, error) {
+	material, err := u.p.GetMaterialByID(materialId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return material, nil
+}

@@ -822,7 +822,7 @@ func (p *Provider) CreateMaterial(material entities.Material) (*entities.Materia
 // Получение материалов по id задачи
 func (p *Provider) GetMaterialsByTaskID(taskID int) ([]entities.Material, error) {
 	rows, err := p.conn.Query(
-		`SELECT id, "Title", "Extension", "Description", "CreatorID", "TaskID"
+		`SELECT id, "FileName", "Extension", "Description", "EmployeeID", "TaskID"
 		 FROM public."Material"
 		 WHERE "TaskID" = $1
 		 ORDER BY id`,
@@ -854,7 +854,7 @@ func (p *Provider) GetMaterialsByTaskID(taskID int) ([]entities.Material, error)
 func (p *Provider) GetMaterialByID(materialID int) (*entities.Material, error) {
 	var material entities.Material
 	err := p.conn.QueryRow(
-		`SELECT id, "Title", "Extension", "Description", "CreatorID", "TaskID"
+		`SELECT id, "FileName", "Extension", "Description", "EmployeeID", "TaskID"
 		 FROM public."Material"
 		 WHERE id = $1`,
 		materialID,

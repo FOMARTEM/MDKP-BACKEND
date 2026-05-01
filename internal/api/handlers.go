@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -398,6 +399,7 @@ func (s *Server) tasksList(e echo.Context) error {
 
 // Создать материал в базе данных
 // Сохранить материал на сервере используя его название и id
+// Переписать что бы можно было по одной ручке сохранять либо к задаче либо к версии
 func (s *Server) materialUpload(e echo.Context) error {
 	var material entities.Material
 
@@ -452,7 +454,43 @@ func (s *Server) materialUpload(e echo.Context) error {
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
 }
 
-func (s *Server) materialGet(e echo.Context) error { return s.notImplemented(e) }
+func (s *Server) materialGet(e echo.Context) error {
+	materialId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	material, err := s.uc.GetMaterial(materialId)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, material)
+}
+
+func (s *Server) materialDownload(e echo.Context) error {
+	materialId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	material, err := s.uc.GetMaterial(materialId)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	filePath := fmt.Sprintf("./materials/%s-%d.%s", material.Title, material.ID, material.Extension)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return e.JSON(http.StatusNotFound, "file not found")
+	}
+
+	newFileName := material.Title + "." + material.Extension
+
+	return e.Attachment(filePath, newFileName)
+}
 
 func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
 
