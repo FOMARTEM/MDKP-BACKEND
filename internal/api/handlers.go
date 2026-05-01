@@ -3,7 +3,9 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
@@ -394,7 +396,61 @@ func (s *Server) tasksList(e echo.Context) error {
 
 //func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
 
-func (s *Server) materialUpload(e echo.Context) error { return s.notImplemented(e) }
+// Создать материал в базе данных
+// Сохранить материал на сервере используя его название и id
+func (s *Server) materialUpload(e echo.Context) error {
+	var material entities.Material
+
+	err := e.Bind(&material)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	taskId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
+
+	file, err := e.FormFile("file")
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	filename := file.Filename
+	extension := strings.TrimPrefix(filepath.Ext(filename), ".")
+	title := strings.TrimSuffix(filename, filepath.Ext(filename))
+
+	/*
+		fmt.Println(filename)
+		fmt.Println(extension)
+		fmt.Println(title)
+	*/
+
+	material.Extension = extension
+	material.Title = title
+	material.TaskID = taskId
+	material.CreatorID = userID
+
+	material.ID, err = s.uc.CreateMaterial(material)
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	// Сохранение материала на сервере
+	err = saveMaterialFile(file, material)
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
+}
 
 func (s *Server) materialGet(e echo.Context) error { return s.notImplemented(e) }
 

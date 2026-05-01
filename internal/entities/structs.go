@@ -32,11 +32,11 @@ type Tasks struct {
 
 type Material struct {
 	ID          int    `json:"id"`
-	Title       string `json:"title" form:"title" required:"true"`
+	Title       string `json:"title"`
 	Extension   string `json:"extension"`
 	Description string `json:"description" form:"description" required:"true"`
-	CreatorID   int    `json:"creator_id" form:"creator_id"`
-	TaskID      int    `json:"task_id" form:"task_id"`
+	CreatorID   int    `json:"creator_id"`
+	TaskID      int    `json:"task_id"`
 }
 
 type Version struct {

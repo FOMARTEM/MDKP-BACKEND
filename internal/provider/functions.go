@@ -798,7 +798,7 @@ func (p *Provider) UpdateVersionStatus(versionID int, status string) error {
 func (p *Provider) CreateMaterial(material entities.Material) (*entities.Material, error) {
 	var id int
 	err := p.conn.QueryRow(
-		`INSERT INTO public."Material" ("Title","Extension","Description","CreatorID","TaskID")
+		`INSERT INTO public."Material" ("FileName","Extension","Description","EmployeeID","TaskID")
 		 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 		material.Title,
 		material.Extension,

@@ -40,4 +40,8 @@ type Usecase interface {
 	TaskStatusUpdate(taskId int, status string) error
 	// Список задач текущего пользоватля
 	TasksList(userID int) ([]entities.Tasks, error)
+
+	// Работа с материалом
+	// Создание материала
+	CreateMaterial(material entities.Material) (int, error)
 }

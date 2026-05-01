@@ -289,3 +289,13 @@ func (u *Usecase) TasksList(userID int) ([]entities.Tasks, error) {
 
 	return tasks, err
 }
+
+func (u *Usecase) CreateMaterial(material entities.Material) (int, error) {
+	createdMaterial, err := u.p.CreateMaterial(material)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return createdMaterial.ID, nil
+}
