@@ -193,7 +193,7 @@ func (s *Server) registerRoutes() {
 	material.GET("/:id", s.materialGet)               // ++
 	material.GET("/download/:id", s.materialDownload) // ++
 	material.POST("/:id", s.materialUpload)           // ++
-	material.DELETE("/:id", s.materialDelete)         // Удаление файла
+	// material.DELETE("/:id", s.materialDelete)         // Удаление файла
 
 	// Маршруты для получения версий и создания новой версии
 	s.server.GET("/versions/:id", s.versionsList)

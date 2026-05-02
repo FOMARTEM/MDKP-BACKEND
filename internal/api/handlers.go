@@ -492,7 +492,7 @@ func (s *Server) materialDownload(e echo.Context) error {
 	return e.Attachment(filePath, newFileName)
 }
 
-func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
+// func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
 
 func (s *Server) versionCreate(e echo.Context) error { return s.notImplemented(e) }
 
