@@ -181,9 +181,9 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления правками
 	edit := s.server.Group("/edit")
-	edit.POST("/:id", s.editCreate)
-	edit.PUT("/:id/status", s.editStatusUpdate)
-	edit.DELETE("/:id", s.editDelete)
+	edit.POST("/:id", s.editCreate)             //
+	edit.PUT("/:id/status", s.editStatusUpdate) //
+	edit.DELETE("/:id", s.editDelete)           //
 
 	// Маршрут для получения правок по ID
 	s.server.GET("/edits/:id", s.editsList)
@@ -193,11 +193,14 @@ func (s *Server) registerRoutes() {
 	material.GET("/:id", s.materialGet)               // ++
 	material.GET("/download/:id", s.materialDownload) // ++
 	material.POST("/:id", s.materialUpload)           // ++
-	// material.DELETE("/:id", s.materialDelete)         // Удаление файла
+	// material.DELETE("/:id", s.materialDelete)      // Удаление файла
 
 	// Маршруты для получения версий и создания новой версии
-	s.server.GET("/versions/:id", s.versionsList)
-	s.server.POST("/version", s.versionCreate)
+	version := s.server.Group("/version")
+	version.GET("/list/:id", s.versionsList) // ++
+	version.POST("/:id", s.versionCreate)    // ++
+	version.GET("/:id", s.versionGet)        // ++
+	//version.PUT("/:id", s.versionUpdate)   // Обновление версии
 }
 
 func getLimitOffset(e echo.Context) (int, int) {

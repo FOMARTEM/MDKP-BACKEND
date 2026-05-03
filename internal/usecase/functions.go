@@ -309,3 +309,23 @@ func (u *Usecase) GetMaterial(materialId int) (*entities.Material, error) {
 
 	return material, nil
 }
+
+// Работа с версиями
+
+func (u *Usecase) VersionTask(version entities.Version) (*entities.Version, error) {
+	versionCreated, err := u.p.CreateVersion(version)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return versionCreated, err
+}
+
+func (u *Usecase) VersionsList(taskId int) ([]entities.Version, error) {
+	return u.p.GetVersionsByTaskID(taskId)
+}
+
+func (u *Usecase) VersionById(versionId int) (*entities.Version, error) {
+	return u.p.GetVersionByID(versionId)
+}

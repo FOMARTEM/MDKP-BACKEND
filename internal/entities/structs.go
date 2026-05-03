@@ -37,16 +37,16 @@ type Material struct {
 	Description string `json:"description" form:"description" required:"true"`
 	CreatorID   int    `json:"creator_id"`
 	TaskID      int    `json:"task_id"`
+	VestionID   int    `json:"version_id"`
 }
 
 type Version struct {
 	ID            int    `json:"id"`
 	NumberVersion int    `json:"number_version"`
-	DateCreated   string `json:"date_created" validate:"date"`
+	DateCreated   string `json:"date_created"`
 	Title         string `json:"title" required:"true"`
 	Description   string `json:"description" required:"true"`
 	CreatorID     int    `json:"creator_id"`
-	MaterialID    int    `json:"material_id"`
 	TaskID        int    `json:"task_id"`
 }
 

@@ -692,14 +692,13 @@ func (p *Provider) GetTasksByStatuses(statuses []string) ([]entities.Tasks, erro
 func (p *Provider) CreateVersion(version entities.Version) (*entities.Version, error) {
 	var id int
 	err := p.conn.QueryRow(
-		`INSERT INTO public."Version" ("NumberVersion","CreateDate","Title","Description","CreatorID","MaterialID","TaskID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+		`INSERT INTO public."Version" ("VersionNumber","CreateDate","Title","Description","EmployeeID","TaskID")
+		 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 		version.NumberVersion,
 		version.DateCreated,
 		version.Title,
 		version.Description,
 		version.CreatorID,
-		version.MaterialID,
 		version.TaskID,
 	).Scan(&id)
 	if err != nil {
@@ -712,7 +711,6 @@ func (p *Provider) CreateVersion(version entities.Version) (*entities.Version, e
 		Title:         version.Title,
 		Description:   version.Description,
 		CreatorID:     version.CreatorID,
-		MaterialID:    version.MaterialID,
 		TaskID:        version.TaskID,
 	}, nil
 }
@@ -720,7 +718,7 @@ func (p *Provider) CreateVersion(version entities.Version) (*entities.Version, e
 // Получение версий задачи по id задачи
 func (p *Provider) GetVersionsByTaskID(taskID int) ([]entities.Version, error) {
 	rows, err := p.conn.Query(
-		`SELECT id, "NumberVersion", "CreateDate", "Title", "Description", "CreatorID", "MaterialID", "TaskID"
+		`SELECT id, "VersionNumber", "CreateDate", "Title", "Description", "EmployeeID", "TaskID"
 		 FROM public."Version"
 		 WHERE "TaskID" = $1
 		 ORDER BY id`,
@@ -740,7 +738,6 @@ func (p *Provider) GetVersionsByTaskID(taskID int) ([]entities.Version, error) {
 			&version.Title,
 			&version.Description,
 			&version.CreatorID,
-			&version.MaterialID,
 			&version.TaskID,
 		); err != nil {
 			return nil, err
@@ -754,7 +751,7 @@ func (p *Provider) GetVersionsByTaskID(taskID int) ([]entities.Version, error) {
 func (p *Provider) GetVersionByID(versionID int) (*entities.Version, error) {
 	var version entities.Version
 	err := p.conn.QueryRow(
-		`SELECT id, "NumberVersion", "CreateDate", "Title", "Description", "CreatorID", "MaterialID", "TaskID"
+		`SELECT id, "VersionNumber", "CreateDate", "Title", "Description", "EmployeeID", "TaskID"
 		 FROM public."Version"
 		 WHERE id = $1`,
 		versionID,
@@ -765,7 +762,6 @@ func (p *Provider) GetVersionByID(versionID int) (*entities.Version, error) {
 		&version.Title,
 		&version.Description,
 		&version.CreatorID,
-		&version.MaterialID,
 		&version.TaskID,
 	)
 

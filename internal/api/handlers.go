@@ -21,7 +21,7 @@ func (s *Server) healthCheck(e echo.Context) error {
 	})
 }
 
-func (s *Server) notImplemented(e echo.Context) error {
+func notImplemented(e echo.Context) error {
 	return e.JSON(http.StatusNotImplemented, map[string]any{
 		"error":  "not implemented",
 		"method": e.Request().Method,
@@ -74,8 +74,8 @@ func (s *Server) authLogin(e echo.Context) error {
 	return e.JSON(http.StatusOK, u)
 }
 
-//func (s *Server) authRefresh(e echo.Context) error { return s.notImplemented(e) }
-//func (s *Server) authLogout(e echo.Context) error  { return s.notImplemented(e) }
+//func (s *Server) authRefresh(e echo.Context) error { return notImplemented(e) }
+//func (s *Server) authLogout(e echo.Context) error  { return notImplemented(e) }
 
 // Обновление пароля пользователя ++
 func (s *Server) accountPasswordUpdate(e echo.Context) error {
@@ -340,7 +340,7 @@ func (s *Server) taskDelete(e echo.Context) error {
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
 }
 
-//func (s *Server) taskAssign(e echo.Context) error { return s.notImplemented(e) }
+//func (s *Server) taskAssign(e echo.Context) error { return notImplemented(e) }
 
 func (s *Server) taskGet(e echo.Context) error {
 	taskId, err := strconv.Atoi(e.Param("id"))
@@ -395,7 +395,7 @@ func (s *Server) tasksList(e echo.Context) error {
 	return e.JSON(http.StatusOK, tasks)
 }
 
-//func (s *Server) tasksSearch(e echo.Context) error { return s.notImplemented(e) }
+//func (s *Server) tasksSearch(e echo.Context) error { return notImplemented(e) }
 
 // Создать материал в базе данных
 // Сохранить материал на сервере используя его название и id
@@ -492,16 +492,83 @@ func (s *Server) materialDownload(e echo.Context) error {
 	return e.Attachment(filePath, newFileName)
 }
 
-// func (s *Server) materialDelete(e echo.Context) error { return s.notImplemented(e) }
+// func (s *Server) materialDelete(e echo.Context) error { return notImplemented(e) }
 
-func (s *Server) versionCreate(e echo.Context) error { return s.notImplemented(e) }
+// Создание версии к задаче
+func (s *Server) versionCreate(e echo.Context) error {
+	// Данные по версии
+	// Ложим в бд
+	// Получаем по ней все данные
+	var version entities.Version
 
-func (s *Server) versionsList(e echo.Context) error { return s.notImplemented(e) }
+	userID, err := userIDFromToken(e)
+	if err != nil {
+		return err
+	}
 
-func (s *Server) editCreate(e echo.Context) error { return s.notImplemented(e) }
+	taskId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
 
-func (s *Server) editStatusUpdate(e echo.Context) error { return s.notImplemented(e) }
+	err = e.Bind(&version)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
 
-func (s *Server) editsList(e echo.Context) error { return s.notImplemented(e) }
+	version.CreatorID = userID
+	version.TaskID = taskId
 
-func (s *Server) editDelete(e echo.Context) error { return s.notImplemented(e) }
+	versionCreated, err := s.uc.VersionTask(version)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, versionCreated)
+}
+
+func (s *Server) versionsList(e echo.Context) error {
+	/*
+		userID, err := userIDFromToken(e)
+		if err != nil {
+			return err
+		}
+	*/
+
+	taskId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	versions, err := s.uc.VersionsList(taskId)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, versions)
+}
+
+func (s *Server) versionGet(e echo.Context) error {
+	versionId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	version, err := s.uc.VersionById(versionId)
+
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, version)
+}
+
+func (s *Server) editCreate(e echo.Context) error { return notImplemented(e) }
+
+func (s *Server) editStatusUpdate(e echo.Context) error { return notImplemented(e) }
+
+func (s *Server) editsList(e echo.Context) error { return notImplemented(e) }
+
+func (s *Server) editDelete(e echo.Context) error { return notImplemented(e) }

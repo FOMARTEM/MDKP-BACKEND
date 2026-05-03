@@ -99,3 +99,31 @@ curl -X GET http://127.0.0.1:8080/material/8 \
 curl -X GET http://127.0.0.1:8080/material/download/8 \
   -H "Authorization: Bearer $Ruk_TOKEN" \
   -J -L   --remote-name
+
+
+curl -X POST http://127.0.0.1:8080/version/1 \
+   -H "Authorization: Bearer $Ruk_TOKEN" \
+   -H "Content-Type: application/json" \
+   -d '{
+    "number_version": 1,
+    "title": "Версия 1.0",
+    "description": "Первая версия задачи",
+    "date_created": "2026-04-30"
+  }'
+
+curl -X POST http://127.0.0.1:8080/version/1 \
+  -H "Authorization: Bearer $Ruk_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "number_version": 1,
+  "title": "Версия 2.0",
+  "description": "ВТОРая версия задачи",
+  "date_created": "2026-04-30"
+}'
+
+
+curl -X GET http://127.0.0.1:8080/version/list/1 \
+  -H "Authorization: Bearer $Ruk_TOKEN"
+
+curl -X GET http://127.0.0.1:8080/version/1 \
+-H "Authorization: Bearer $Ruk_TOKEN"
