@@ -900,9 +900,8 @@ func (p *Provider) AssignMaterialToVersion(materialID int, versionID int) error 
 func (p *Provider) CreateRevision(revision entities.Revision) (*entities.Revision, error) {
 	var id int
 	err := p.conn.QueryRow(
-		`INSERT INTO public."Revision" ("NumberRevision","CreateDate","Title","Description","CreatorID","VersionID","StatusID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-		revision.NumberRevision,
+		`INSERT INTO public."Revision" ("CreateDate","Title","Description","EmployeeID","VersionID","StatusID")
+		 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 		revision.DateCreated,
 		revision.Title,
 		revision.Description,
@@ -914,26 +913,24 @@ func (p *Provider) CreateRevision(revision entities.Revision) (*entities.Revisio
 		return nil, err
 	}
 	return &entities.Revision{
-		ID:             id,
-		NumberRevision: revision.NumberRevision,
-		DateCreated:    revision.DateCreated,
-		Title:          revision.Title,
-		Description:    revision.Description,
-		CreatorID:      revision.CreatorID,
-		VersionID:      revision.VersionID,
-		StatusID:       revision.StatusID,
+		ID:          id,
+		DateCreated: revision.DateCreated,
+		Title:       revision.Title,
+		Description: revision.Description,
+		CreatorID:   revision.CreatorID,
+		VersionID:   revision.VersionID,
+		StatusID:    revision.StatusID,
 	}, nil
 }
 
 // Получение правок по id задачи
-func (p *Provider) GetRevisionsByTaskID(taskID int) ([]entities.Revision, error) {
+func (p *Provider) GetRevisionsByVersionID(versionID int) ([]entities.Revision, error) {
 	rows, err := p.conn.Query(
-		`SELECT r.id, r."NumberRevision", r."CreateDate", r."Title", r."Description", r."CreatorID", r."VersionID", r."StatusID"
+		`SELECT r.id, r."CreateDate", r."Title", r."Description", r."EmployeeID", r."VersionID", r."StatusID"
 		 FROM public."Revision" r
-		 JOIN public."Version" v ON v.id = r."VersionID"
-		 WHERE v."TaskID" = $1
+		 WHERE r."VersionID" = $1
 		 ORDER BY r.id`,
-		taskID,
+		versionID,
 	)
 	if err != nil {
 		return nil, err
@@ -944,7 +941,6 @@ func (p *Provider) GetRevisionsByTaskID(taskID int) ([]entities.Revision, error)
 		var revision entities.Revision
 		if err := rows.Scan(
 			&revision.ID,
-			&revision.NumberRevision,
 			&revision.DateCreated,
 			&revision.Title,
 			&revision.Description,
@@ -963,13 +959,12 @@ func (p *Provider) GetRevisionsByTaskID(taskID int) ([]entities.Revision, error)
 func (p *Provider) GetRevisionByID(revisionID int) (*entities.Revision, error) {
 	var revision entities.Revision
 	err := p.conn.QueryRow(
-		`SELECT id, "NumberRevision", "CreateDate", "Title", "Description", "CreatorID", "VersionID", "StatusID"
+		`SELECT id, "CreateDate", "Title", "Description", "EmployeeID", "VersionID", "StatusID"
 		 FROM public."Revision"	
 	 WHERE id = $1`,
 		revisionID,
 	).Scan(
 		&revision.ID,
-		&revision.NumberRevision,
 		&revision.DateCreated,
 		&revision.Title,
 		&revision.Description,

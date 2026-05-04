@@ -63,14 +63,13 @@ type Role struct {
 }
 
 type Revision struct {
-	ID             int    `json:"id"`
-	NumberRevision int    `json:"number_revision"`
-	DateCreated    string `json:"date_created" validate:"date"`
-	Title          string `json:"title" required:"true"`
-	Description    string `json:"description" required:"true"`
-	CreatorID      int    `json:"creator_id"`
-	VersionID      int    `json:"version_id"`
-	StatusID       int    `json:"status_id"`
+	ID          int    `json:"id"`
+	DateCreated string `json:"date_created"`
+	Title       string `json:"title" required:"true"`
+	Description string `json:"description" required:"true"`
+	CreatorID   int    `json:"creator_id"`
+	VersionID   int    `json:"version_id"`
+	StatusID    int    `json:"status_id"`
 }
 
 type Log struct {

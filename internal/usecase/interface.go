@@ -112,8 +112,8 @@ type Provider interface {
 	// Создание правки
 	CreateRevision(revision entities.Revision) (*entities.Revision, error)
 
-	// Получение правок по id задачи
-	GetRevisionsByTaskID(taskID int) ([]entities.Revision, error)
+	// Получение правок по id правки
+	GetRevisionsByVersionID(versionID int) ([]entities.Revision, error)
 
 	// Получение правки по id правки
 	GetRevisionByID(revisionID int) (*entities.Revision, error)

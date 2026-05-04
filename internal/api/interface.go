@@ -51,4 +51,10 @@ type Usecase interface {
 	VersionTask(version entities.Version) (*entities.Version, error)
 	VersionsList(taskId int) ([]entities.Version, error)
 	VersionById(versionId int) (*entities.Version, error)
+
+	// Работа с правками
+	CreateRevision(revision entities.Revision) (*entities.Revision, error)
+	EditStatusUpdate(editId int, status string) error
+	GetRevisionsByVersionID(versionID int) ([]entities.Revision, error)
+	GetRevisionByID(revisionID int) (*entities.Revision, error)
 }

@@ -181,12 +181,11 @@ func (s *Server) registerRoutes() {
 
 	// Маршруты для управления правками
 	edit := s.server.Group("/edit")
-	edit.POST("/:id", s.editCreate)             //
-	edit.PUT("/:id/status", s.editStatusUpdate) //
-	edit.DELETE("/:id", s.editDelete)           //
-
-	// Маршрут для получения правок по ID
-	s.server.GET("/edits/:id", s.editsList)
+	edit.POST("/:id", s.editCreate)             // ++
+	edit.PUT("/:id/status", s.editStatusUpdate) // ++
+	//edit.DELETE("/:id", s.editDelete)           //
+	edit.GET("/list/:id", s.editsList) // ++
+	edit.GET("/:id", s.editGet)        // ++
 
 	// Маршруты для управления материалами
 	material := s.server.Group("/material")

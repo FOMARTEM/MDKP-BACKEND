@@ -5,7 +5,7 @@ curl -vX POST  http://127.0.0.1:8080/auth \
 curl -vX GET http://127.0.0.1:8080/roles \
 -H "Authorization: Bearer $JWT_TOKEN"
 
-curl -vX GET http://127.0.0.1:8080/status \
+curl -X GET http://127.0.0.1:8080/status \
 -H "Authorization: Bearer $JWT_TOKEN"
 
 export JWT_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ItCQ0LTQvNC40L3QuNGB0YLRgNCw0YLQvtGAIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiLQn9C10YDQstGL0Lkg0JDQtNC80LjQvdC40YHRgtGA0LDRgtC-0YAiLCJleHAiOjE4MDYyNDQzMzksImlhdCI6MTc3NzQ0NDMzOX0.SSdgvF_N6r6hxX5Nr0Cxq0AdkSfmJYpWnGIHPnOMbOQ"
@@ -127,3 +127,16 @@ curl -X GET http://127.0.0.1:8080/version/list/1 \
 
 curl -X GET http://127.0.0.1:8080/version/1 \
 -H "Authorization: Bearer $Ruk_TOKEN"
+
+curl -X GET http://127.0.0.1:8080/edit/list/1 \
+-H "Authorization: Bearer $Ruk_TOKEN"
+
+curl -X POST http://127.0.0.1:8080/edit/1 \
+  -H "Authorization: Bearer $Ruk_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Редакция 1.0",
+    "description": "Первая редакция версии",
+    "date_created": "2026-05-04",
+    "status_id": 7
+  }'
