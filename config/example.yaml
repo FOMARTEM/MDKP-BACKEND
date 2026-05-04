@@ -1,0 +1,18 @@
+ip: 0.0.0.0
+port: 8080
+
+api:
+  secret_key: super-secret-key-change-me
+  access_token_ttl_minutes: 15
+  refresh_token_ttl_days: 30
+
+usecase:
+  default_message: MDKP backend is running
+
+db:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: mdkp
+  sslmode: disable
