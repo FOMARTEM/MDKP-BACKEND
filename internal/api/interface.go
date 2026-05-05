@@ -46,6 +46,8 @@ type Usecase interface {
 	CreateMaterial(material entities.Material) (int, error)
 	// Получаем данные по материалу
 	GetMaterial(materialId int) (*entities.Material, error)
+	// Список материалов по задаче
+	GetMaterialsByTaskID(taskID int) ([]entities.Material, error)
 
 	// Работа с версиями
 	VersionTask(version entities.Version) (*entities.Version, error)

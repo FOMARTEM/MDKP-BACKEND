@@ -492,6 +492,20 @@ func (s *Server) materialDownload(e echo.Context) error {
 	return e.Attachment(filePath, newFileName)
 }
 
+func (s *Server) materialsList(e echo.Context) error {
+	taskId, err := strconv.Atoi(e.Param("id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	materials, err := s.uc.GetMaterialsByTaskID(taskId)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return e.JSON(http.StatusOK, materials)
+}
+
 // func (s *Server) materialDelete(e echo.Context) error { return notImplemented(e) }
 
 // Создание версии к задаче

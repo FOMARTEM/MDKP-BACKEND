@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
@@ -57,6 +58,10 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 
 	// Логирование запросов в формате: [время] | статус | метод | IP | URI | время обработки
 	api.server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		Skipper: func(c echo.Context) bool {
+			// Браузерные CORS preflight запросы (OPTIONS) — нормальны и могут засорять лог.
+			return c.Request().Method == echo.OPTIONS
+		},
 		LogURI:      true,
 		LogStatus:   true,
 		LogMethod:   true,
@@ -76,9 +81,15 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 	}))
 
 	// CORS middleware для разрешения запросов с фронтенда
+	normalizedFront := strings.TrimSpace(frontAddress)
+	normalizedFront = strings.TrimRight(normalizedFront, "/")
+	allowOrigins := []string{"*"}
+	if normalizedFront != "" {
+		allowOrigins = []string{normalizedFront}
+	}
 	api.server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{frontAddress},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowOrigins: allowOrigins,
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
@@ -163,9 +174,10 @@ func (s *Server) registerRoutes() {
 	user.PUT("/role", s.userRoleUpdate) // ++
 
 	// Маршруты для получения ролей, статуса и поиска пользователей
-	s.server.GET("/roles", s.rolesList)   // ++
-	s.server.GET("/status", s.statusGet)  // ++
-	s.server.GET("/finduser", s.findUser) // ++
+	s.server.GET("/roles", s.rolesList)  // ++
+	s.server.GET("/status", s.statusGet) // ++
+	//s.server.GET("/finduser", s.findUser) // ++
+	s.server.POST("/finduser", s.findUser)
 
 	// Маршруты для управления задачами
 	task := s.server.Group("/task")
@@ -192,6 +204,7 @@ func (s *Server) registerRoutes() {
 	material.GET("/:id", s.materialGet)               // ++
 	material.GET("/download/:id", s.materialDownload) // ++
 	material.POST("/:id", s.materialUpload)           // ++
+	material.GET("/list/:id", s.materialsList)        // ++
 	// material.DELETE("/:id", s.materialDelete)      // Удаление файла
 
 	// Маршруты для получения версий и создания новой версии

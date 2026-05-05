@@ -52,6 +52,9 @@ type Provider interface {
 	// Получение логов по определённым датам
 	GetLogsByDateRange(startDate, endDate string) ([]entities.Log, error)
 
+	// Получение всех логов (с пагинацией)
+	GetLogsAll(limit, offset int) ([]entities.Log, error)
+
 	// Создание задачи
 	CreateTask(task entities.Tasks) (*entities.Tasks, error)
 

@@ -140,3 +140,14 @@ curl -X POST http://127.0.0.1:8080/edit/1 \
     "date_created": "2026-05-04",
     "status_id": 7
   }'
+
+
+
+
+admin@example.com
+Test12345
+rukovod@example.com
+redaktor@example.com
+author@example.com
+test@example.com
+Test1234

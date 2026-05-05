@@ -5,6 +5,7 @@ api:
   secret_key: super-secret-key-change-me
   access_token_ttl_minutes: 15
   refresh_token_ttl_days: 30
+  front_address: http://localhost:5173
 
 usecase:
   default_message: MDKP backend is running

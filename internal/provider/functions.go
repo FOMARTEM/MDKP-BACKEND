@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"strings"
+
 	"github.com/FOMARTEM/MDKP-BACKEND/internal/entities"
 	"github.com/lib/pq"
 )
@@ -190,7 +192,7 @@ func (p *Provider) FindUsers(user entities.User, searchBy string) ([]entities.Us
 		return []entities.User{}, nil
 	}
 
-	if searchValue == "" {
+	if strings.TrimSpace(searchValue) == "" {
 		return []entities.User{}, nil
 	}
 
@@ -204,8 +206,6 @@ func (p *Provider) FindUsers(user entities.User, searchBy string) ([]entities.Us
 
 	for rows.Next() {
 		var user entities.User
-		// Порядок должен соответствовать RETURNS TABLE в функции:
-		// id, last_name, first_name, middle_name, email, phone, birth_date, is_active, position_name, position_id
 		err := rows.Scan(
 			&user.ID,          // id
 			&user.LastName,    // last_name
@@ -390,6 +390,36 @@ func (p *Provider) GetLogsByDateRange(startDate, endDate string) ([]entities.Log
 		return nil, err
 	}
 	defer rows.Close()
+	var logs []entities.Log
+	for rows.Next() {
+		var log entities.Log
+		if err := rows.Scan(
+			&log.ID,
+			&log.UserID,
+			&log.Action,
+			&log.DateCreated,
+		); err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+	return logs, rows.Err()
+}
+
+// Получение всех логов (с пагинацией)
+func (p *Provider) GetLogsAll(limit, offset int) ([]entities.Log, error) {
+	rows, err := p.conn.Query(
+		`SELECT id, "UserID", "Action", "Date"
+		 FROM public."Log"
+		 ORDER BY id DESC
+		 LIMIT $1 OFFSET $2`,
+		limit, offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var logs []entities.Log
 	for rows.Next() {
 		var log entities.Log

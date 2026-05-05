@@ -114,7 +114,8 @@ func (u *Usecase) GetLogs(userID int, email string, startDate, endDate string, l
 	} else if startDate != "" && endDate != "" {
 		logs, err = u.p.GetLogsByDateRange(startDate, endDate)
 	} else {
-		return nil, entities.ErrInvalidQueryParams
+		// Без фильтров — отдаём все логи с пагинацией.
+		return u.p.GetLogsAll(limit, offset)
 	}
 
 	if err != nil {
@@ -308,6 +309,10 @@ func (u *Usecase) GetMaterial(materialId int) (*entities.Material, error) {
 	}
 
 	return material, nil
+}
+
+func (u *Usecase) GetMaterialsByTaskID(taskID int) ([]entities.Material, error) {
+	return u.p.GetMaterialsByTaskID(taskID)
 }
 
 // Работа с версиями
