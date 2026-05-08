@@ -12,6 +12,76 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Регистрация доступных маршрутов
+func (s *Server) registerRoutes() {
+	// Здесь регистрируем все маршруты и их обработчики
+	s.server.GET("/health", s.healthCheck)
+
+	// Группировка маршрутов для удобства и логической организации
+	// Маршруты для аутентификации
+	auth := s.server.Group("/auth") // +
+	auth.POST("", s.authLogin)      //++
+	//auth.POST("/refresh", s.authRefresh)
+	//auth.POST("/logout", s.authLogout)
+
+	// Маршруты для управления аккаунтом
+	account := s.server.Group("/account")             // ++
+	account.PUT("/password", s.accountPasswordUpdate) // ++
+	account.GET("/my", s.accountGet)                  // ++
+
+	// Маршрут для получения логов активности
+	s.server.GET("/activitylog", s.activityLogList) // ++
+
+	// Маршруты для управления пользователями
+	user := s.server.Group("/user")
+	user.GET("/list", s.usersList)
+	user.POST("", s.userCreate)         // ++
+	user.PUT("/active", s.userActive)   // ++
+	user.PUT("/role", s.userRoleUpdate) // ++
+
+	// Маршруты для получения ролей, статуса и поиска пользователей
+	s.server.GET("/roles", s.rolesList)  // ++
+	s.server.GET("/status", s.statusGet) // ++
+	//s.server.GET("/finduser", s.findUser) // ++
+	s.server.POST("/finduser", s.findUser) // ++
+
+	// Маршруты для управления задачами
+	task := s.server.Group("/task")
+	task.POST("", s.taskCreate)       // ++
+	task.DELETE("/:id", s.taskDelete) // ++
+	//task.PUT("/:id/assign", s.taskAssign)       //
+	task.GET("/:id", s.taskGet)                 // ++
+	task.PUT("/:id/status", s.taskStatusUpdate) // ++
+
+	// Маршруты для получения и поиска задач
+	task.GET("/list", s.tasksList) // ++
+	//task.GET("/search", s.tasksSearch) //
+
+	// Маршруты для управления правками
+	edit := s.server.Group("/edit")
+	edit.POST("/:id", s.editCreate)             // ++
+	edit.PUT("/:id/status", s.editStatusUpdate) // ++
+	//edit.DELETE("/:id", s.editDelete)           //
+	edit.GET("/list/:id", s.editsList) // ++
+	edit.GET("/:id", s.editGet)        // ++
+
+	// Маршруты для управления материалами
+	material := s.server.Group("/material")
+	material.GET("/:id", s.materialGet)               // ++
+	material.GET("/download/:id", s.materialDownload) // ++
+	material.POST("/:id", s.materialUpload)           // ++
+	material.GET("/list/:id", s.materialsList)        // ++
+	// material.DELETE("/:id", s.materialDelete)      // Удаление файла
+
+	// Маршруты для получения версий и создания новой версии
+	version := s.server.Group("/version")
+	version.GET("/list/:id", s.versionsList) // ++
+	version.POST("/:id", s.versionCreate)    // ++
+	version.GET("/:id", s.versionGet)        // ++
+	//version.PUT("/:id", s.versionUpdate)   // Обновление версии
+}
+
+// Получение limit и offser из query параметра
 func (s *Server) getLimitOffset(e echo.Context) (int, int) {
 	limit, _ := strconv.Atoi(e.QueryParam("limit"))
 	offset, _ := strconv.Atoi(e.QueryParam("offset"))
@@ -25,6 +95,7 @@ func (s *Server) getLimitOffset(e echo.Context) (int, int) {
 	return limit, offset
 }
 
+// Получение ID пользователя из токена
 func (s *Server) userIDFromToken(e echo.Context) (int, error) {
 	if v := e.Get("id"); v != nil {
 		if id, ok := v.(int); ok {
@@ -70,6 +141,7 @@ func (s *Server) userIDFromToken(e echo.Context) (int, error) {
 	}
 }
 
+// Сохранение материала на сервере
 func (s *Server) saveMaterialFile(file *multipart.FileHeader, material entities.Material) error {
 	dst := fmt.Sprintf("./materials/%s-%d.%s", material.Title, material.ID, material.Extension)
 
