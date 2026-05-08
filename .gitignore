@@ -39,7 +39,5 @@ config/config.yaml
 logs/
 ./logs
 
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.env
+# Main
+main
