@@ -84,9 +84,10 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 		allowOrigins = []string{normalizedFront}
 	}
 	api.server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: allowOrigins,
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowOrigins:  allowOrigins,
+		AllowMethods:  []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders:  []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		ExposeHeaders: []string{"Content-Disposition"},
 	}))
 
 	// JWT middleware для защиты маршрутов, требующих аутентификации
