@@ -1,0 +1,6 @@
+"id","LastName","FirstName","MiddleName","Email","Phone","BirthDate","Password","IsActive","Position_ID"
+1,"Первый","Администратор","Платформы","admin@example.com","89069157711","2004-09-29","Test12345",True,1
+2,"Первый","Руководитель","Платформы","rukovod@example.com","89876543210","1985-05-15","Test1234",True,2
+4,"Первый","Редактор","Платформы","redaktor@example.com","89876543210","1985-05-15","Test1234",True,3
+6,"Первый","Автор","Платформы","author@example.com","89876543210","1985-05-15","Test1234",True,4
+8,"Тест","Тест","ава","test@example.com","89997776655","2004-08-29","Test1234",True,3
