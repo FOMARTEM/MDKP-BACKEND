@@ -23,16 +23,14 @@ func (p *Provider) CreateTask(task entities.Tasks) (*entities.Tasks, error) {
 	var id int
 	err := p.conn.QueryRow(
 		`INSERT INTO public."Task" ("Title","Description","CreateDate","DeadlineDate","Priority","CreatorId","EditorID","AuthorID","StatusID")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING "id"`,
+		 VALUES ($1, $2, current_date, $3, $4, $5, $6, $7, 1) RETURNING "id"`,
 		task.Title,
 		task.Description,
-		task.DateCreated,
 		task.DateDedline,
 		task.Priority,
 		task.IdCreator,
 		task.IdRedactor,
 		task.IdAuthor,
-		task.IdStatus,
 	).Scan(&id)
 	if err != nil {
 		return nil, err

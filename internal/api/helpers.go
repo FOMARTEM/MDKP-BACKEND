@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -162,4 +163,13 @@ func (s *Server) saveMaterialFile(file *multipart.FileHeader, material entities.
 
 	_, err = io.Copy(out, src)
 	return err
+}
+
+// Заглушка
+func notImplemented(e echo.Context) error {
+	return e.JSON(http.StatusNotImplemented, map[string]any{
+		"error":  "not implemented",
+		"method": e.Request().Method,
+		"path":   e.Path(),
+	})
 }

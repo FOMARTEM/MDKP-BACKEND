@@ -13,7 +13,7 @@ type Usecase interface {
 	// Функция для получения данных пользователя (без пароля) по id
 	SelectUserByID(userID int) (*entities.User, error)
 	// Получение логов
-	GetLogs(userID int, email string, startDate, endDate string, limit, offset int) ([]entities.Log, error)
+	GetLogs(userID int, email, startDate, endDate string, limit, offset int) ([]entities.Log, error)
 	// Получение ролей пользователей
 	GetRoles() ([]entities.Role, error)
 	// Получение возможных статусов

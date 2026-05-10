@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,7 +32,7 @@ func (s *Server) taskCreate(e echo.Context) error {
 	task.IdCreator = userID
 
 	taskCreated, err := s.uc.CreateTask(task)
-
+	fmt.Println(err)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -48,7 +49,7 @@ func (s *Server) taskDelete(e echo.Context) error {
 	err = s.uc.TaskDelete(taskId)
 
 	if err != nil {
-		return e.JSON(http.StatusBadRequest, err.Error())
+		return e.JSON(http.StatusBadRequest, map[string]any{"error": "Невозможно удалить задачу когда она взята в работу"})
 	}
 
 	return e.JSON(http.StatusOK, map[string]any{"status": "ok"})
