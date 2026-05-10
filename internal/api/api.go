@@ -3,7 +3,6 @@ package api
 import (
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -77,14 +76,14 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 	}))
 
 	// CORS middleware для разрешения запросов с фронтенда
-	normalizedFront := strings.TrimSpace(frontAddress)
+	/*normalizedFront := strings.TrimSpace(frontAddress)
 	normalizedFront = strings.TrimRight(normalizedFront, "/")
 	allowOrigins := []string{"*"}
 	if normalizedFront != "" {
 		allowOrigins = []string{normalizedFront}
-	}
+	}*/
 	api.server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:  allowOrigins,
+		AllowOrigins:  []string{"*"}, // Разрешает запросы с любого адреса
 		AllowMethods:  []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders:  []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		ExposeHeaders: []string{"Content-Disposition"},
