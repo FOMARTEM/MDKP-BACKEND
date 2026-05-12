@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,7 +31,7 @@ func (s *Server) taskCreate(e echo.Context) error {
 	task.IdCreator = userID
 
 	taskCreated, err := s.uc.CreateTask(task)
-	fmt.Println(err)
+
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}

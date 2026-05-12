@@ -133,6 +133,10 @@ func (s *Server) userCreate(e echo.Context) error {
 		return e.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
+	if user.Phone == "" {
+		return e.JSON(http.StatusUnprocessableEntity, map[string]any{"error": "Введите телефон"})
+	}
+
 	createdUser, err := s.uc.CreateUser(user)
 
 	if err != nil {

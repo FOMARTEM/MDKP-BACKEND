@@ -5,7 +5,7 @@ type User struct {
 	LastName     string `json:"last_name"`
 	FirstName    string `json:"first_name"`
 	MiddleName   string `json:"middle_name"`
-	Phone        string `json:"phone"`
+	Phone        string `json:"phone" required:"true"`
 	DateOfBirth  string `json:"date_of_birth"`
 	Email        string `json:"email" validate:"email"`
 	Password     string `json:"password,omitempty" validate:"min=8,max=16"`
