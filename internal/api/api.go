@@ -45,6 +45,10 @@ func NewServer(ip string, port int, uc Usecase, secretKey string, frontAddress s
 	api.server.Logger.SetLevel(log.INFO)
 
 	// Настройка логирования в файл
+	// go test запускает пакеты из их директорий, поэтому гарантируем, что ./logs существует.
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		log.Fatalf("Failed to create logs dir: %v", err)
+	}
 	logFile, err := os.OpenFile("logs/api.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
