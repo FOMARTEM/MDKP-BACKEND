@@ -36,3 +36,5 @@ build-linux:
 build-mac:
 	$(MAKE) build OS=MacOS
 
+runBat:
+	./main
